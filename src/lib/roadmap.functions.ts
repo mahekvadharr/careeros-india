@@ -67,7 +67,7 @@ export const generateRoadmap = createServerFn({ method: "POST" })
 - Confidence level: ${profile.confidence_level}/10
 - Weekly hours available: ${profile.weekly_hours}
 
-Generate a roadmap of 6 to 8 semesters starting from semester ${(profile.year - 1) * 2 + 1}. Each semester should have 4-6 items mixing skills, projects, internships, networking, and placement prep.`;
+Generate a roadmap of 6 to 8 semesters starting from semester ${(((profile.year ?? 1) - 1) * 2) + 1}. Each semester should have 4-6 items mixing skills, projects, internships, networking, and placement prep.`;
 
     const { toolArguments } = await callGemini({
       messages: [
@@ -87,10 +87,11 @@ Generate a roadmap of 6 to 8 semesters starting from semester ${(profile.year - 
       .eq("user_id", userId)
       .maybeSingle();
 
+    const semestersJson = semesters as unknown as never;
     if (existing) {
-      await supabase.from("roadmaps").update({ semesters }).eq("id", existing.id);
+      await supabase.from("roadmaps").update({ semesters: semestersJson }).eq("id", existing.id);
     } else {
-      await supabase.from("roadmaps").insert({ user_id: userId, semesters });
+      await supabase.from("roadmaps").insert({ user_id: userId, semesters: semestersJson });
     }
     return { semesters };
   });
