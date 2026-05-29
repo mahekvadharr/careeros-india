@@ -14,7 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      mentor_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          branch: string | null
+          career_score: number
+          confidence_level: number | null
+          created_at: string
+          current_skills: string[] | null
+          dream_companies: string[] | null
+          email: string | null
+          full_name: string | null
+          id: string
+          onboarded: boolean
+          target_career: string | null
+          updated_at: string
+          user_id: string
+          weekly_hours: number | null
+          year: number | null
+        }
+        Insert: {
+          branch?: string | null
+          career_score?: number
+          confidence_level?: number | null
+          created_at?: string
+          current_skills?: string[] | null
+          dream_companies?: string[] | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          onboarded?: boolean
+          target_career?: string | null
+          updated_at?: string
+          user_id: string
+          weekly_hours?: number | null
+          year?: number | null
+        }
+        Update: {
+          branch?: string | null
+          career_score?: number
+          confidence_level?: number | null
+          created_at?: string
+          current_skills?: string[] | null
+          dream_companies?: string[] | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          onboarded?: boolean
+          target_career?: string | null
+          updated_at?: string
+          user_id?: string
+          weekly_hours?: number | null
+          year?: number | null
+        }
+        Relationships: []
+      }
+      roadmaps: {
+        Row: {
+          created_at: string
+          id: string
+          semesters: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          semesters?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          semesters?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_tasks: {
+        Row: {
+          created_at: string
+          id: string
+          tasks: Json
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tasks?: Json
+          updated_at?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tasks?: Json
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
