@@ -2,15 +2,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import heroImg from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowRight, Sparkles, BookOpen, Calendar, MessageCircle, FileText, Briefcase, Check } from "lucide-react";
+import { ArrowRight, Sparkles, Compass, Calendar, Briefcase, FileText, Mic, Wrench, Target, Check } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CareerOS India — Stop Guessing Your Career" },
-      { name: "description", content: "The AI Career Operating System for Indian engineering students. Personalized roadmaps, weekly plans, mentor, and placement prep." },
-      { property: "og:title", content: "CareerOS India" },
-      { property: "og:description", content: "Stop guessing your career. Build a plan that actually works." },
+      { title: "CareerOS — Stop Guessing Your Career" },
+      { name: "description", content: "The AI Career Operating System for engineering college students. Career GPS, weekly missions, internship tracker, resume score, and reality checks." },
+      { property: "og:title", content: "CareerOS" },
+      { property: "og:description", content: "Your future, organized. A calm, premium career command center for engineering students." },
       { property: "og:image", content: heroImg },
     ],
   }),
@@ -18,26 +18,27 @@ export const Route = createFileRoute("/")({
 });
 
 const features = [
-  { icon: BookOpen, title: "Career Roadmap Engine", desc: "Semester-wise plan generated for your branch, year, and target role." },
-  { icon: Calendar, title: "Weekly Action Planner", desc: "Know exactly what to do this week. No more decision paralysis." },
-  { icon: MessageCircle, title: "AI Career Mentor", desc: "A specialised mentor that knows Indian colleges, placements, and companies." },
-  { icon: FileText, title: "Resume Analyzer", desc: "ATS score, missing keywords, and surgical improvements." },
-  { icon: Briefcase, title: "Internship Hub", desc: "Curated internships matched to your skills and year." },
-  { icon: Sparkles, title: "Mock Interviews", desc: "Role-based interviews with structured AI feedback." },
+  { icon: Compass, title: "Career GPS", desc: "Your personal map. Always knows where you are and the next turn to take." },
+  { icon: Calendar, title: "Weekly Action Plan", desc: "Every Monday, a fresh mission: finish arrays, apply to 5 internships, update your resume." },
+  { icon: Briefcase, title: "Internship Tracker", desc: "Applications, rejections, interviews, follow-ups — one calm dashboard." },
+  { icon: FileText, title: "Resume Score", desc: "An honest score, surgical fixes, and the keywords recruiters scan for." },
+  { icon: Mic, title: "Mock Interviews", desc: "Role-based AI interviews with structured, actionable feedback." },
+  { icon: Wrench, title: "Project Generator", desc: "Beginner, intermediate, portfolio projects — tailored to your year and goal." },
+  { icon: Target, title: "Career Reality Check", desc: "Tell us your dream role. We tell you your readiness %, what's missing, and the months to close the gap." },
 ];
 
 const tiers = [
-  { name: "Free", price: "₹0", period: "forever", features: ["Basic roadmap", "10 mentor chats / month", "1 resume review"], cta: "Start free", highlight: false },
-  { name: "Pro", price: "₹199", period: "/month", features: ["Unlimited mentor chats", "Unlimited resume reviews", "Advanced roadmap", "Weekly planner"], cta: "Go Pro", highlight: true },
-  { name: "Pro Plus", price: "₹399", period: "/month", features: ["Everything in Pro", "Mock interviews", "Internship recommendations", "Placement prep"], cta: "Choose Plus", highlight: false },
+  { name: "Free", price: "₹0", period: "forever", features: ["Career GPS basics", "10 mentor chats / month", "1 resume score"], cta: "Start free", highlight: false },
+  { name: "Pro", price: "₹199", period: "/month", features: ["Unlimited mentor chats", "Unlimited resume scores", "Weekly action plan", "Project Generator"], cta: "Go Pro", highlight: true },
+  { name: "Pro Plus", price: "₹399", period: "/month", features: ["Everything in Pro", "Mock interviews", "Internship tracker", "Career Reality Check"], cta: "Choose Plus", highlight: false },
   { name: "Yearly", price: "₹2,999", period: "/year", features: ["Everything in Pro Plus", "Save ₹1,789", "Priority AI access"], cta: "Save 37%", highlight: false },
 ];
 
 const faqs = [
-  { q: "Is CareerOS only for CS students?", a: "We started with CS/IT, but the roadmap engine adapts to any engineering branch — ECE, Mechanical, Electrical, and more." },
-  { q: "How is this different from YouTube career advice?", a: "Generic advice doesn't know you. CareerOS builds a plan for your branch, year, skills, and dream companies — and updates it every week." },
-  { q: "Do I need to pay to start?", a: "No. The free tier gives you a roadmap, 10 mentor chats, and one resume review. Upgrade only when you need more." },
-  { q: "Will this help with placements?", a: "Yes. Pro Plus includes mock interviews, internship matching, and a structured placement prep track." },
+  { q: "Is CareerOS only for CS students?", a: "No. The roadmap engine adapts to every engineering branch — Electronics, Mechanical, Electrical, AI/ML, Data Science, and more." },
+  { q: "How is this different from YouTube career advice?", a: "Generic advice doesn't know you. CareerOS builds a plan for your branch, year, skills, hours, and dream role — and updates it every week." },
+  { q: "Do I need to pay to start?", a: "No. The free tier gives you a Career GPS, 10 mentor chats, and one resume score. Upgrade only when you need more." },
+  { q: "Will this help with placements?", a: "Yes. Pro Plus includes mock interviews, internship tracking, and a Career Reality Check that maps the months to your dream role." },
 ];
 
 function Landing() {
@@ -68,40 +69,38 @@ function Landing() {
         <img src={heroImg} alt="" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover opacity-60 pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
         <div className="relative mx-auto max-w-5xl px-6 pt-28 pb-32 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs text-muted-foreground mb-8">
+          <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs text-muted-foreground mb-8 fade-up">
             <Sparkles className="h-3 w-3 text-gold" />
-            Built for Indian engineering students
+            Built for engineering college students
           </div>
-          <h1 className="text-5xl md:text-7xl font-display gradient-text leading-[1.05]">
-            Stop guessing<br/>your career.
+          <h1 className="text-5xl md:text-7xl font-display gradient-text leading-[1.05] fade-up">
+            Your future,<br/>organized.
           </h1>
-          <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Your <span className="gold-text font-medium">AI Career Operating System</span> for engineering students in India. Roadmaps, weekly plans, mentor — built for placements, internships, and the world after college.
+          <p className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed fade-up">
+            A calm, premium <span className="gold-text font-medium">Career Operating System</span> for engineering students. Career GPS, weekly missions, internship tracker, resume score — one quiet command center for the work that actually matters.
           </p>
-          <div className="mt-10 flex items-center justify-center gap-3">
+          <div className="mt-10 flex items-center justify-center gap-3 fade-up">
             <Link to="/auth">
-              <Button size="lg" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold h-12 px-7 text-base">
+              <Button size="lg" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold h-12 px-7 text-base btn-press">
                 Build my career plan <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
             <a href="#features">
-              <Button size="lg" variant="outline" className="rounded-full h-12 px-7 text-base border-border/60 bg-transparent">See how it works</Button>
+              <Button size="lg" variant="outline" className="rounded-full h-12 px-7 text-base border-border/60 bg-transparent btn-press">See how it works</Button>
             </a>
           </div>
           <p className="mt-6 text-xs text-muted-foreground">No credit card required · Cancel anytime</p>
         </div>
       </section>
 
-      {/* Logos / trust */}
+      {/* Trust strip */}
       <section className="border-y border-border/40 bg-background/40">
-        <div className="mx-auto max-w-6xl px-6 py-8 flex flex-wrap items-center justify-center gap-x-12 gap-y-4 text-xs uppercase tracking-[0.25em] text-muted-foreground/70">
-          <span>IIT · NIT · BITS · VIT</span>
-          <span>·</span>
-          <span>1st to 4th year</span>
-          <span>·</span>
-          <span>CS / IT / ECE / EEE</span>
-          <span>·</span>
-          <span>Placements 2026</span>
+        <div className="mx-auto max-w-6xl px-6 py-8 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-xs uppercase tracking-[0.25em] text-muted-foreground/70">
+          <span>Calm</span><span>·</span>
+          <span>Premium</span><span>·</span>
+          <span>Ambitious</span><span>·</span>
+          <span>Intelligent</span><span>·</span>
+          <span>Reassuring</span>
         </div>
       </section>
 
@@ -114,7 +113,7 @@ function Landing() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => (
-            <div key={f.title} className="glass-card rounded-3xl p-7 hover:-translate-y-1 transition-transform duration-300 group">
+            <div key={f.title} className="glass-card rounded-3xl p-7 hover-lift group">
               <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 grid place-items-center mb-5 group-hover:shadow-gold transition-shadow">
                 <f.icon className="h-5 w-5 text-gold" />
               </div>
@@ -164,9 +163,9 @@ function Landing() {
         </div>
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { name: "Aarav, IIIT Hyderabad", text: "Went from no plan to a Google internship interview in 4 months. The weekly tasks kept me honest." },
-            { name: "Diya, NIT Trichy", text: "CareerOS told me exactly what skills I was missing for product roles. Felt like having a senior on call." },
-            { name: "Rohan, VIT Vellore", text: "The mentor is sharper than most YouTubers. It actually knows Indian college timelines." },
+            { name: "Aarav, 3rd year CS", text: "Went from no plan to a real internship interview in 4 months. The weekly mission card kept me honest." },
+            { name: "Diya, 2nd year ECE", text: "The Reality Check told me exactly what was missing for product roles. Felt like having a senior on call." },
+            { name: "Rohan, 4th year IT", text: "The mentor is sharper than most YouTubers. It actually knows the timelines I'm living through." },
           ].map((t) => (
             <figure key={t.name} className="glass-card rounded-3xl p-7">
               <blockquote className="text-lg leading-relaxed text-foreground/90">"{t.text}"</blockquote>
@@ -230,7 +229,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/40 py-10 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} CareerOS India · Built with intent for Indian engineering students.
+        © {new Date().getFullYear()} CareerOS · Built with intent for engineering college students.
       </footer>
     </div>
   );

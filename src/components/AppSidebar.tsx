@@ -1,17 +1,19 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Map, Calendar, FileText, Briefcase, MessageCircle, Mic, Settings, LogOut } from "lucide-react";
+import { Home, Compass, Calendar, FileText, Briefcase, MessageCircle, Mic, Wrench, Target, Settings, LogOut } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
 
 const items = [
-  { title: "Home", url: "/dashboard", icon: Home },
-  { title: "Career Roadmap", url: "/roadmap", icon: Map },
-  { title: "Weekly Tasks", url: "/weekly", icon: Calendar },
+  { title: "Command Center", url: "/dashboard", icon: Home },
+  { title: "Career GPS", url: "/roadmap", icon: Compass },
+  { title: "Weekly Mission", url: "/weekly", icon: Calendar },
   { title: "AI Mentor", url: "/mentor", icon: MessageCircle },
-  { title: "Resume Review", url: "/resume", icon: FileText, soon: true },
+  { title: "Reality Check", url: "/reality", icon: Target, soon: true },
+  { title: "Project Generator", url: "/projects", icon: Wrench, soon: true },
+  { title: "Internship Tracker", url: "/internships", icon: Briefcase, soon: true },
+  { title: "Resume Score", url: "/resume", icon: FileText, soon: true },
   { title: "Mock Interviews", url: "/interviews", icon: Mic, soon: true },
-  { title: "Internship Hub", url: "/internships", icon: Briefcase, soon: true },
 ];
 
 export function AppSidebar() {

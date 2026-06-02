@@ -67,7 +67,7 @@ function AuthPage() {
         <div className="absolute inset-0 grain" />
         <div className="relative z-10 m-auto max-w-md p-12 text-center">
           <h2 className="font-display text-5xl gradient-text leading-tight">Your career,<br/>finally clear.</h2>
-          <p className="mt-6 text-muted-foreground">Join thousands of Indian engineering students using CareerOS to land internships, ace placements, and stop guessing.</p>
+          <p className="mt-6 text-muted-foreground">Join thousands of engineering college students using CareerOS to land internships, prepare for placements, and stop guessing.</p>
         </div>
       </div>
       <div className="flex flex-col">
