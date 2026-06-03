@@ -158,25 +158,55 @@ function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="mx-auto max-w-7xl px-6 py-28">
+      {/* Live example — what a student actually sees */}
+      <section className="mx-auto max-w-5xl px-6 py-28">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs uppercase tracking-[0.3em] text-gold mb-3">Loved by students</p>
-          <h2 className="text-4xl md:text-5xl font-display gradient-text">Confidence, finally.</h2>
+          <p className="text-xs uppercase tracking-[0.3em] text-gold mb-3">A real example</p>
+          <h2 className="text-4xl md:text-5xl font-display gradient-text">This is what clarity<br/>actually looks like.</h2>
+          <p className="mt-5 text-muted-foreground">Two minutes of onboarding. A complete plan on the other side.</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-5">
-          {[
-            { name: "Aarav, 3rd year CS", text: "Went from no plan to a real internship interview in 4 months. The weekly mission card kept me honest." },
-            { name: "Diya, 2nd year ECE", text: "The Reality Check told me exactly what was missing for product roles. Felt like having a senior on call." },
-            { name: "Rohan, 4th year IT", text: "The mentor is sharper than most YouTubers. It actually knows the timelines I'm living through." },
-          ].map((t) => (
-            <figure key={t.name} className="glass-card rounded-3xl p-7">
-              <blockquote className="text-lg leading-relaxed text-foreground/90">"{t.text}"</blockquote>
-              <figcaption className="mt-6 text-sm text-muted-foreground">— {t.name}</figcaption>
-            </figure>
-          ))}
+
+        <div className="glass-card rounded-3xl p-8 md:p-10 shadow-luxe relative overflow-hidden">
+          <div className="absolute -top-24 right-0 h-64 w-64 bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="grid md:grid-cols-2 gap-8 relative">
+            <div className="space-y-6">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Goal</div>
+                <div className="text-2xl font-display text-foreground">Software Engineer</div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Current</div>
+                <div className="text-2xl font-display text-foreground">1st Year · CS</div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Estimated internship readiness</div>
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-gold" />
+                  <span className="text-2xl font-display gold-text">6 months</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-4">Your roadmap</div>
+              <div className="space-y-3">
+                {["Git", "Python", "Projects", "DSA"].map((step, i, arr) => (
+                  <div key={step} className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border border-primary/40 bg-primary/10 grid place-items-center text-xs text-gold font-medium">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 rounded-2xl border border-border/50 bg-background/40 px-4 py-3 text-sm">
+                      {step}
+                    </div>
+                    {i < arr.length - 1 && <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
+
 
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-7xl px-6 py-28">
