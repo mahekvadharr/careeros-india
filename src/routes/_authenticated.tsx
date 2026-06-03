@@ -19,15 +19,23 @@ function AuthenticatedLayout() {
 
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getUser().then(({ data, error }) => {
-      if (!mounted) return;
-      if (error || !data.user) {
-        nav({ to: "/auth" });
-      } else {
-        setReady(true);
+    const check = async () => {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) {
+        if (mounted) nav({ to: "/auth" });
+        return;
       }
+      const expiresAt = (sess.session.expires_at ?? 0) * 1000;
+      if (expiresAt - Date.now() < 60_000) {
+        await supabase.auth.refreshSession();
+      }
+      if (mounted) setReady(true);
+    };
+    check();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!session && mounted) nav({ to: "/auth" });
     });
-    return () => { mounted = false; };
+    return () => { mounted = false; subscription.unsubscribe(); };
   }, [nav]);
 
   const fetchProfile = useServerFn(getProfile);
