@@ -64,8 +64,13 @@ function Landing() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <img src={heroImg} alt="" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover opacity-60 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
+        {/* Abstract navy + gold gradient backdrop */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[700px] w-[1100px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(40,70,140,0.55),_transparent_60%)] blur-3xl" />
+          <div className="absolute top-20 -left-40 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,_rgba(20,40,90,0.6),_transparent_65%)] blur-3xl" />
+          <div className="absolute top-40 -right-40 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,_rgba(198,161,91,0.18),_transparent_65%)] blur-3xl" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" />
+        </div>
         <div className="relative mx-auto max-w-5xl px-6 pt-28 pb-32 text-center">
           <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs text-muted-foreground mb-8 fade-up">
             <Sparkles className="h-3 w-3 text-gold" />
