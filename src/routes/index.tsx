@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowRight, Sparkles, Compass, Calendar, Briefcase, FileText, Mic, Wrench, Target, Check } from "lucide-react";
+import { ArrowRight, Sparkles, Compass, Calendar, Briefcase, FileText, Mic, Wrench, Target, Check, Clock } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -10,18 +9,17 @@ export const Route = createFileRoute("/")({
       { title: "CareerOS — Stop Guessing Your Career" },
       { name: "description", content: "The AI Career Operating System for engineering college students. Career GPS, weekly missions, internship tracker, resume score, and reality checks." },
       { property: "og:title", content: "CareerOS" },
-      { property: "og:description", content: "Your future, organized. A calm, premium career command center for engineering students." },
-      { property: "og:image", content: heroImg },
+      { property: "og:description", content: "Stop guessing. A calm, premium career command center for engineering students." },
     ],
   }),
   component: Landing,
 });
 
 const features = [
-  { icon: Compass, title: "Career GPS", desc: "Your personal map. Always knows where you are and the next turn to take." },
-  { icon: Calendar, title: "Weekly Action Plan", desc: "Every Monday, a fresh mission: finish arrays, apply to 5 internships, update your resume." },
+  { icon: Compass, title: "Never wonder what to do next.", desc: "A personal AI mentor that always knows your branch, year, and goal — and tells you the exact next step." },
+  { icon: Calendar, title: "Get one clear mission every week.", desc: "Every Monday, one focused plan: finish this topic, ship this project, send these applications." },
+  { icon: FileText, title: "Know why recruiters are skipping your resume.", desc: "An honest score, surgical fixes, and the keywords ATS systems and recruiters actually scan for." },
   { icon: Briefcase, title: "Internship Tracker", desc: "Applications, rejections, interviews, follow-ups — one calm dashboard." },
-  { icon: FileText, title: "Resume Score", desc: "An honest score, surgical fixes, and the keywords recruiters scan for." },
   { icon: Mic, title: "Mock Interviews", desc: "Role-based AI interviews with structured, actionable feedback." },
   { icon: Wrench, title: "Project Generator", desc: "Beginner, intermediate, portfolio projects — tailored to your year and goal." },
   { icon: Target, title: "Career Reality Check", desc: "Tell us your dream role. We tell you your readiness %, what's missing, and the months to close the gap." },
