@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroImg from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowRight, Sparkles, Compass, Calendar, Briefcase, FileText, Mic, Wrench, Target, Check } from "lucide-react";
+import { ArrowRight, Sparkles, Compass, Calendar, Briefcase, FileText, Mic, Wrench, Target, Check, Clock } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -10,18 +9,17 @@ export const Route = createFileRoute("/")({
       { title: "CareerOS — Stop Guessing Your Career" },
       { name: "description", content: "The AI Career Operating System for engineering college students. Career GPS, weekly missions, internship tracker, resume score, and reality checks." },
       { property: "og:title", content: "CareerOS" },
-      { property: "og:description", content: "Your future, organized. A calm, premium career command center for engineering students." },
-      { property: "og:image", content: heroImg },
+      { property: "og:description", content: "Stop guessing. A calm, premium career command center for engineering students." },
     ],
   }),
   component: Landing,
 });
 
 const features = [
-  { icon: Compass, title: "Career GPS", desc: "Your personal map. Always knows where you are and the next turn to take." },
-  { icon: Calendar, title: "Weekly Action Plan", desc: "Every Monday, a fresh mission: finish arrays, apply to 5 internships, update your resume." },
+  { icon: Compass, title: "Never wonder what to do next.", desc: "A personal AI mentor that always knows your branch, year, and goal — and tells you the exact next step." },
+  { icon: Calendar, title: "Get one clear mission every week.", desc: "Every Monday, one focused plan: finish this topic, ship this project, send these applications." },
+  { icon: FileText, title: "Know why recruiters are skipping your resume.", desc: "An honest score, surgical fixes, and the keywords ATS systems and recruiters actually scan for." },
   { icon: Briefcase, title: "Internship Tracker", desc: "Applications, rejections, interviews, follow-ups — one calm dashboard." },
-  { icon: FileText, title: "Resume Score", desc: "An honest score, surgical fixes, and the keywords recruiters scan for." },
   { icon: Mic, title: "Mock Interviews", desc: "Role-based AI interviews with structured, actionable feedback." },
   { icon: Wrench, title: "Project Generator", desc: "Beginner, intermediate, portfolio projects — tailored to your year and goal." },
   { icon: Target, title: "Career Reality Check", desc: "Tell us your dream role. We tell you your readiness %, what's missing, and the months to close the gap." },
@@ -66,8 +64,13 @@ function Landing() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <img src={heroImg} alt="" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover opacity-60 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
+        {/* Abstract navy + gold gradient backdrop */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[700px] w-[1100px] rounded-full bg-[radial-gradient(ellipse_at_center,_rgba(40,70,140,0.55),_transparent_60%)] blur-3xl" />
+          <div className="absolute top-20 -left-40 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,_rgba(20,40,90,0.6),_transparent_65%)] blur-3xl" />
+          <div className="absolute top-40 -right-40 h-[500px] w-[500px] rounded-full bg-[radial-gradient(circle,_rgba(198,161,91,0.18),_transparent_65%)] blur-3xl" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-background" />
+        </div>
         <div className="relative mx-auto max-w-5xl px-6 pt-28 pb-32 text-center">
           <div className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs text-muted-foreground mb-8 fade-up">
             <Sparkles className="h-3 w-3 text-gold" />
@@ -155,25 +158,55 @@ function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="mx-auto max-w-7xl px-6 py-28">
+      {/* Live example — what a student actually sees */}
+      <section className="mx-auto max-w-5xl px-6 py-28">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs uppercase tracking-[0.3em] text-gold mb-3">Loved by students</p>
-          <h2 className="text-4xl md:text-5xl font-display gradient-text">Confidence, finally.</h2>
+          <p className="text-xs uppercase tracking-[0.3em] text-gold mb-3">A real example</p>
+          <h2 className="text-4xl md:text-5xl font-display gradient-text">This is what clarity<br/>actually looks like.</h2>
+          <p className="mt-5 text-muted-foreground">Two minutes of onboarding. A complete plan on the other side.</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-5">
-          {[
-            { name: "Aarav, 3rd year CS", text: "Went from no plan to a real internship interview in 4 months. The weekly mission card kept me honest." },
-            { name: "Diya, 2nd year ECE", text: "The Reality Check told me exactly what was missing for product roles. Felt like having a senior on call." },
-            { name: "Rohan, 4th year IT", text: "The mentor is sharper than most YouTubers. It actually knows the timelines I'm living through." },
-          ].map((t) => (
-            <figure key={t.name} className="glass-card rounded-3xl p-7">
-              <blockquote className="text-lg leading-relaxed text-foreground/90">"{t.text}"</blockquote>
-              <figcaption className="mt-6 text-sm text-muted-foreground">— {t.name}</figcaption>
-            </figure>
-          ))}
+
+        <div className="glass-card rounded-3xl p-8 md:p-10 shadow-luxe relative overflow-hidden">
+          <div className="absolute -top-24 right-0 h-64 w-64 bg-primary/10 blur-3xl pointer-events-none" />
+          <div className="grid md:grid-cols-2 gap-8 relative">
+            <div className="space-y-6">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Goal</div>
+                <div className="text-2xl font-display text-foreground">Software Engineer</div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Current</div>
+                <div className="text-2xl font-display text-foreground">1st Year · CS</div>
+              </div>
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Estimated internship readiness</div>
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-gold" />
+                  <span className="text-2xl font-display gold-text">6 months</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-4">Your roadmap</div>
+              <div className="space-y-3">
+                {["Git", "Python", "Projects", "DSA"].map((step, i, arr) => (
+                  <div key={step} className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border border-primary/40 bg-primary/10 grid place-items-center text-xs text-gold font-medium">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 rounded-2xl border border-border/50 bg-background/40 px-4 py-3 text-sm">
+                      {step}
+                    </div>
+                    {i < arr.length - 1 && <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
+
 
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-7xl px-6 py-28">
