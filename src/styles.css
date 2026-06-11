@@ -1,6 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+
 
 @custom-variant dark (&:is(.dark *));
 
@@ -177,5 +179,5 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Soria is a display serif not on Google Fonts — use Cormorant Garamond as the visually closest free fallback that loads via CDN, with Soria preferred if a user has it locally. */
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap");
+/* Soria is a display serif not on Google Fonts — Cormorant Garamond is used as the closest CDN fallback (font import moved to top of file per CSS spec). */
+

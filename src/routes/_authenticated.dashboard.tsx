@@ -4,8 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { getProfile } from "@/lib/profile.functions";
 import { getWeeklyTasks } from "@/lib/weekly.functions";
 import { getRoadmap } from "@/lib/roadmap.functions";
+import { getReadiness } from "@/lib/readiness.functions";
+import { listResumeAnalyses } from "@/lib/resume.functions";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, Calendar, Map, MessageCircle, Sparkles, Target } from "lucide-react";
+import { ArrowRight, Calendar, Map, MessageCircle, Sparkles, Target, FileText, Gauge } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — CareerOS" }] }),
@@ -16,15 +19,23 @@ function Dashboard() {
   const profileFn = useServerFn(getProfile);
   const weeklyFn = useServerFn(getWeeklyTasks);
   const roadmapFn = useServerFn(getRoadmap);
+  const readinessFn = useServerFn(getReadiness);
+  const resumeFn = useServerFn(listResumeAnalyses);
 
   const { data: p } = useQuery({ queryKey: ["profile"], queryFn: () => profileFn() });
   const { data: w } = useQuery({ queryKey: ["weekly"], queryFn: () => weeklyFn() });
   const { data: r } = useQuery({ queryKey: ["roadmap"], queryFn: () => roadmapFn() });
+  const { data: ready } = useQuery({ queryKey: ["readiness"], queryFn: () => readinessFn() });
+  const { data: resumes } = useQuery({ queryKey: ["resume-list"], queryFn: () => resumeFn() });
 
   const profile = p?.profile;
   const tasks = (w?.plan?.tasks as Array<{ id: string; title: string; done?: boolean }> | undefined) ?? [];
   const completed = tasks.filter((t) => t.done).length;
   const score = profile?.career_score ?? 0;
+  const readinessScore = ready?.readiness?.total_score ?? null;
+  const latestResume = resumes?.analyses?.[0];
+
+
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -60,10 +71,14 @@ function Dashboard() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
+        <DashCard to="/readiness" icon={Gauge} label="Readiness" title={readinessScore !== null ? `${readinessScore}/100` : "Compute now"} subtitle={readinessScore !== null ? `${ready?.readiness?.estimated_weeks ?? 0} weeks to 90+` : "Across resume, skills, projects"} />
+        <DashCard to="/resume" icon={FileText} label="Resume" title={latestResume ? `Score ${latestResume.overall_score}` : "Upload your resume"} subtitle={latestResume ? `ATS ${latestResume.ats_score} · Keywords ${latestResume.keyword_score}` : "AI scores 6 dimensions"} />
+        <DashCard to="/skillgap" icon={Target} label="Skill Gap" title="Pick a target role" subtitle="See exactly what's missing" />
         <DashCard to="/weekly" icon={Calendar} label="This Week" title={tasks.length ? `${completed}/${tasks.length} tasks done` : "Generate your week"} subtitle={tasks.length ? `${tasks.length - completed} remaining` : "AI builds it in 5s"} />
         <DashCard to="/roadmap" icon={Map} label="Roadmap" title={r?.roadmap ? `${(r.roadmap.semesters as unknown[])?.length ?? 0} semesters` : "Build your roadmap"} subtitle="Tailored to your goal" />
         <DashCard to="/mentor" icon={MessageCircle} label="AI Mentor" title="Ask anything" subtitle="Career, placements, doubts" />
       </div>
+
 
       <div className="mt-10 glass-card rounded-3xl p-7 flex items-center gap-4">
         <div className="h-10 w-10 rounded-full bg-primary/15 grid place-items-center"><Sparkles className="h-5 w-5 text-gold"/></div>
