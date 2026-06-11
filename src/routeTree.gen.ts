@@ -14,8 +14,12 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedWeeklyRouteImport } from './routes/_authenticated.weekly'
+import { Route as AuthenticatedSkillgapRouteImport } from './routes/_authenticated.skillgap'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated.roadmap'
+import { Route as AuthenticatedResumeRouteImport } from './routes/_authenticated.resume'
+import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated.readiness'
+import { Route as AuthenticatedPricingRouteImport } from './routes/_authenticated.pricing'
 import { Route as AuthenticatedMentorRouteImport } from './routes/_authenticated.mentor'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 
@@ -43,6 +47,11 @@ const AuthenticatedWeeklyRoute = AuthenticatedWeeklyRouteImport.update({
   path: '/weekly',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSkillgapRoute = AuthenticatedSkillgapRouteImport.update({
+  id: '/skillgap',
+  path: '/skillgap',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -51,6 +60,21 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedRoadmapRoute = AuthenticatedRoadmapRouteImport.update({
   id: '/roadmap',
   path: '/roadmap',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedResumeRoute = AuthenticatedResumeRouteImport.update({
+  id: '/resume',
+  path: '/resume',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPricingRoute = AuthenticatedPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedMentorRoute = AuthenticatedMentorRouteImport.update({
@@ -70,8 +94,12 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/mentor': typeof AuthenticatedMentorRoute
+  '/pricing': typeof AuthenticatedPricingRoute
+  '/readiness': typeof AuthenticatedReadinessRoute
+  '/resume': typeof AuthenticatedResumeRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/skillgap': typeof AuthenticatedSkillgapRoute
   '/weekly': typeof AuthenticatedWeeklyRoute
 }
 export interface FileRoutesByTo {
@@ -80,8 +108,12 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/mentor': typeof AuthenticatedMentorRoute
+  '/pricing': typeof AuthenticatedPricingRoute
+  '/readiness': typeof AuthenticatedReadinessRoute
+  '/resume': typeof AuthenticatedResumeRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/skillgap': typeof AuthenticatedSkillgapRoute
   '/weekly': typeof AuthenticatedWeeklyRoute
 }
 export interface FileRoutesById {
@@ -92,8 +124,12 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/mentor': typeof AuthenticatedMentorRoute
+  '/_authenticated/pricing': typeof AuthenticatedPricingRoute
+  '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
+  '/_authenticated/resume': typeof AuthenticatedResumeRoute
   '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/skillgap': typeof AuthenticatedSkillgapRoute
   '/_authenticated/weekly': typeof AuthenticatedWeeklyRoute
 }
 export interface FileRouteTypes {
@@ -104,8 +140,12 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/dashboard'
     | '/mentor'
+    | '/pricing'
+    | '/readiness'
+    | '/resume'
     | '/roadmap'
     | '/settings'
+    | '/skillgap'
     | '/weekly'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -114,8 +154,12 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/dashboard'
     | '/mentor'
+    | '/pricing'
+    | '/readiness'
+    | '/resume'
     | '/roadmap'
     | '/settings'
+    | '/skillgap'
     | '/weekly'
   id:
     | '__root__'
@@ -125,8 +169,12 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/_authenticated/dashboard'
     | '/_authenticated/mentor'
+    | '/_authenticated/pricing'
+    | '/_authenticated/readiness'
+    | '/_authenticated/resume'
     | '/_authenticated/roadmap'
     | '/_authenticated/settings'
+    | '/_authenticated/skillgap'
     | '/_authenticated/weekly'
   fileRoutesById: FileRoutesById
 }
@@ -174,6 +222,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWeeklyRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/skillgap': {
+      id: '/_authenticated/skillgap'
+      path: '/skillgap'
+      fullPath: '/skillgap'
+      preLoaderRoute: typeof AuthenticatedSkillgapRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -186,6 +241,27 @@ declare module '@tanstack/react-router' {
       path: '/roadmap'
       fullPath: '/roadmap'
       preLoaderRoute: typeof AuthenticatedRoadmapRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/resume': {
+      id: '/_authenticated/resume'
+      path: '/resume'
+      fullPath: '/resume'
+      preLoaderRoute: typeof AuthenticatedResumeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/readiness': {
+      id: '/_authenticated/readiness'
+      path: '/readiness'
+      fullPath: '/readiness'
+      preLoaderRoute: typeof AuthenticatedReadinessRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pricing': {
+      id: '/_authenticated/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof AuthenticatedPricingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/mentor': {
@@ -208,16 +284,24 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMentorRoute: typeof AuthenticatedMentorRoute
+  AuthenticatedPricingRoute: typeof AuthenticatedPricingRoute
+  AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
+  AuthenticatedResumeRoute: typeof AuthenticatedResumeRoute
   AuthenticatedRoadmapRoute: typeof AuthenticatedRoadmapRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedSkillgapRoute: typeof AuthenticatedSkillgapRoute
   AuthenticatedWeeklyRoute: typeof AuthenticatedWeeklyRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMentorRoute: AuthenticatedMentorRoute,
+  AuthenticatedPricingRoute: AuthenticatedPricingRoute,
+  AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
+  AuthenticatedResumeRoute: AuthenticatedResumeRoute,
   AuthenticatedRoadmapRoute: AuthenticatedRoadmapRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedSkillgapRoute: AuthenticatedSkillgapRoute,
   AuthenticatedWeeklyRoute: AuthenticatedWeeklyRoute,
 }
 
