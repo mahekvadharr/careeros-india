@@ -38,6 +38,60 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_usage: {
+        Row: {
+          ai_messages: number
+          id: string
+          job_applications: number
+          period: string
+          resume_analyses: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_messages?: number
+          id?: string
+          job_applications?: number
+          period: string
+          resume_analyses?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_messages?: number
+          id?: string
+          job_applications?: number
+          period?: string
+          resume_analyses?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pro_waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           branch: string | null
@@ -49,6 +103,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_pro: boolean
           onboarded: boolean
           target_career: string | null
           updated_at: string
@@ -66,6 +121,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_pro?: boolean
           onboarded?: boolean
           target_career?: string | null
           updated_at?: string
@@ -83,12 +139,106 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_pro?: boolean
           onboarded?: boolean
           target_career?: string | null
           updated_at?: string
           user_id?: string
           weekly_hours?: number | null
           year?: number | null
+        }
+        Relationships: []
+      }
+      readiness_scores: {
+        Row: {
+          certifications_score: number
+          estimated_weeks: number
+          id: string
+          improvement_plan: Json
+          linkedin_score: number
+          missing_items: Json
+          projects_score: number
+          resume_score: number
+          roadmap_score: number
+          skills_score: number
+          total_score: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          certifications_score?: number
+          estimated_weeks?: number
+          id?: string
+          improvement_plan?: Json
+          linkedin_score?: number
+          missing_items?: Json
+          projects_score?: number
+          resume_score?: number
+          roadmap_score?: number
+          skills_score?: number
+          total_score?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          certifications_score?: number
+          estimated_weeks?: number
+          id?: string
+          improvement_plan?: Json
+          linkedin_score?: number
+          missing_items?: Json
+          projects_score?: number
+          resume_score?: number
+          roadmap_score?: number
+          skills_score?: number
+          total_score?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      resume_analyses: {
+        Row: {
+          ats_score: number
+          created_at: string
+          experience_score: number
+          feedback: Json
+          file_name: string
+          formatting_score: number
+          id: string
+          keyword_score: number
+          overall_score: number
+          project_score: number
+          target_role: string | null
+          user_id: string
+        }
+        Insert: {
+          ats_score?: number
+          created_at?: string
+          experience_score?: number
+          feedback?: Json
+          file_name: string
+          formatting_score?: number
+          id?: string
+          keyword_score?: number
+          overall_score?: number
+          project_score?: number
+          target_role?: string | null
+          user_id: string
+        }
+        Update: {
+          ats_score?: number
+          created_at?: string
+          experience_score?: number
+          feedback?: Json
+          file_name?: string
+          formatting_score?: number
+          id?: string
+          keyword_score?: number
+          overall_score?: number
+          project_score?: number
+          target_role?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -112,6 +262,45 @@ export type Database = {
           id?: string
           semesters?: Json
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      skill_gap_results: {
+        Row: {
+          created_at: string
+          estimated_weeks: number
+          id: string
+          learning_plan: Json
+          match_percentage: number
+          matched_skills: Json
+          missing_skills: Json
+          required_skills: Json
+          target_role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_weeks?: number
+          id?: string
+          learning_plan?: Json
+          match_percentage?: number
+          matched_skills?: Json
+          missing_skills?: Json
+          required_skills?: Json
+          target_role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          estimated_weeks?: number
+          id?: string
+          learning_plan?: Json
+          match_percentage?: number
+          matched_skills?: Json
+          missing_skills?: Json
+          required_skills?: Json
+          target_role?: string
           user_id?: string
         }
         Relationships: []
