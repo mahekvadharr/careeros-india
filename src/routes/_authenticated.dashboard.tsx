@@ -36,10 +36,6 @@ function Dashboard() {
   const latestResume = resumes?.analyses?.[0];
 
 
-  const profile = p?.profile;
-  const tasks = (w?.plan?.tasks as Array<{ id: string; title: string; done?: boolean }> | undefined) ?? [];
-  const completed = tasks.filter((t) => t.done).length;
-  const score = profile?.career_score ?? 0;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
