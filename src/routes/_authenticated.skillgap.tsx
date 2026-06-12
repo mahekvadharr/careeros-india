@@ -90,10 +90,15 @@ function SkillGapPage() {
             <div className="glass-card rounded-2xl p-5">
               <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">Learning plan</div>
               <ol className="space-y-3">
-                {((r.learning_plan as Array<{ skill: string; weeks: number; resource: string }>) || []).map((p, i) => (
+                {((r.learning_plan as Array<{ skill: string; weeks: number; resource: string; roadmap?: string; course?: string; practice?: string }>) || []).map((p, i) => (
                   <li key={i} className="border-l-2 border-gold/40 pl-3">
                     <div className="text-sm font-medium">{p.skill} <span className="text-xs text-muted-foreground">· {p.weeks}w</span></div>
                     <div className="text-xs text-muted-foreground">{p.resource}</div>
+                    <div className="flex flex-wrap gap-1.5 text-[10px] mt-1.5">
+                      {p.roadmap && <a href={p.roadmap} target="_blank" rel="noreferrer" className="rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2 py-0.5">Roadmap</a>}
+                      {p.course && <a href={p.course} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Course</a>}
+                      {p.practice && <a href={p.practice} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Practice</a>}
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -102,13 +107,21 @@ function SkillGapPage() {
 
           <div className="glass-card rounded-2xl p-5">
             <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">Missing — sorted by priority</div>
-            <div className="space-y-3">
-              {((r.missing_skills as Array<{ name: string; priority: string; why: string }>) || []).map((m) => (
+            <div className="space-y-4">
+              {((r.missing_skills as Array<{ name: string; priority: string; why: string; roadmap?: string; course?: string; practice?: string; weeks_to_job_ready?: number }>) || []).map((m) => (
                 <div key={m.name} className="flex gap-3">
                   <span className={`text-[10px] uppercase tracking-widest pt-1 ${m.priority === "high" ? "text-destructive" : m.priority === "medium" ? "text-warning" : "text-muted-foreground"}`}>{m.priority}</span>
-                  <div>
-                    <div className="text-sm font-medium">{m.name}</div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm font-medium">{m.name}</div>
+                      {m.weeks_to_job_ready ? <span className="text-[10px] uppercase tracking-widest text-gold/80">~{m.weeks_to_job_ready}w to job-ready</span> : null}
+                    </div>
                     <div className="text-xs text-muted-foreground">{m.why}</div>
+                    <div className="flex flex-wrap gap-1.5 text-[10px] mt-2">
+                      {m.roadmap && <a href={m.roadmap} target="_blank" rel="noreferrer" className="rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2 py-0.5">Roadmap</a>}
+                      {m.course && <a href={m.course} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Course</a>}
+                      {m.practice && <a href={m.practice} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Practice</a>}
+                    </div>
                   </div>
                 </div>
               ))}
