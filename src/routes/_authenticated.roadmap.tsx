@@ -73,6 +73,18 @@ function RoadmapPage() {
                           <span className="text-[9px] uppercase tracking-widest text-gold/80">{i.category}</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">{i.description}</p>
+                        {i.resources && (
+                          <div className="mt-3 space-y-1.5">
+                            <div className="flex flex-wrap gap-1.5 text-[10px]">
+                              {i.resources.roadmap && <a href={i.resources.roadmap} target="_blank" rel="noreferrer" className="rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2 py-0.5">Roadmap</a>}
+                              {i.resources.course && <a href={i.resources.course} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Course</a>}
+                              {i.resources.practice && <a href={i.resources.practice} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Practice</a>}
+                            </div>
+                            {i.resources.portfolio_project && (
+                              <p className="text-[11px] text-muted-foreground italic">🛠 Project: {i.resources.portfolio_project}</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
