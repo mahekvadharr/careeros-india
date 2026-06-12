@@ -5,7 +5,7 @@ import { useState } from "react";
 import { analyzeSkillGap, latestSkillGap, TARGET_ROLES } from "@/lib/skillgap.functions";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Check, X, TrendingUp } from "lucide-react";
+import { Loader2, Check, X, TrendingUp, Youtube, Map as MapIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/skillgap")({
   head: () => ({ meta: [{ title: "Skill Gap — CareerOS" }] }),
@@ -106,21 +106,49 @@ function SkillGapPage() {
           </div>
 
           <div className="glass-card rounded-2xl p-5">
-            <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">Missing — sorted by priority</div>
-            <div className="space-y-4">
-              {((r.missing_skills as Array<{ name: string; priority: string; why: string; roadmap?: string; course?: string; practice?: string; weeks_to_job_ready?: number }>) || []).map((m) => (
-                <div key={m.name} className="flex gap-3">
-                  <span className={`text-[10px] uppercase tracking-widest pt-1 ${m.priority === "high" ? "text-destructive" : m.priority === "medium" ? "text-warning" : "text-muted-foreground"}`}>{m.priority}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="text-sm font-medium">{m.name}</div>
-                      {m.weeks_to_job_ready ? <span className="text-[10px] uppercase tracking-widest text-gold/80">~{m.weeks_to_job_ready}w to job-ready</span> : null}
-                    </div>
-                    <div className="text-xs text-muted-foreground">{m.why}</div>
-                    <div className="flex flex-wrap gap-1.5 text-[10px] mt-2">
-                      {m.roadmap && <a href={m.roadmap} target="_blank" rel="noreferrer" className="rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2 py-0.5">Roadmap</a>}
-                      {m.course && <a href={m.course} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Course</a>}
-                      {m.practice && <a href={m.practice} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Practice</a>}
+            <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">Missing — guided learning path</div>
+            <div className="space-y-5">
+              {((r.missing_skills as Array<{ name: string; priority: string; why: string; roadmap?: string; course?: string; practice?: string; weeks_to_job_ready?: number; steps?: string[]; youtube_videos?: Array<{ title: string; url: string }> }>) || []).map((m) => (
+                <div key={m.name} className="rounded-xl border border-border/40 bg-background/30 p-4">
+                  <div className="flex items-start gap-3">
+                    <span className={`text-[10px] uppercase tracking-widest pt-1 ${m.priority === "high" ? "text-destructive" : m.priority === "medium" ? "text-warning" : "text-muted-foreground"}`}>{m.priority}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-sm font-medium">{m.name}</div>
+                        {m.weeks_to_job_ready ? <span className="text-[10px] uppercase tracking-widest text-gold/80">~{m.weeks_to_job_ready}w to job-ready</span> : null}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{m.why}</div>
+
+                      {m.steps && m.steps.length > 0 && (
+                        <div className="mt-3">
+                          <div className="text-[10px] uppercase tracking-widest text-gold/80 mb-1.5">What to learn — in order</div>
+                          <ol className="space-y-1 text-xs text-foreground/90">
+                            {m.steps.map((s, i) => (
+                              <li key={i} className="flex gap-2"><span className="text-gold/70 font-mono">{i + 1}.</span><span>{s}</span></li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
+
+                      {m.youtube_videos && m.youtube_videos.length > 0 && (
+                        <div className="mt-3">
+                          <div className="text-[10px] uppercase tracking-widest text-gold/80 mb-1.5">Watch</div>
+                          <div className="flex flex-col gap-1">
+                            {m.youtube_videos.map((v, i) => (
+                              <a key={i} href={v.url} target="_blank" rel="noreferrer" className="inline-flex items-start gap-1.5 text-xs text-foreground/90 hover:text-gold">
+                                <Youtube className="h-3.5 w-3.5 text-red-500 mt-0.5 shrink-0"/>
+                                <span className="underline-offset-2 hover:underline">{v.title}</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap gap-1.5 text-[10px] mt-3">
+                        {m.roadmap && <a href={m.roadmap} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2 py-0.5"><MapIcon className="h-3 w-3"/>roadmap.sh</a>}
+                        {m.course && <a href={m.course} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Course</a>}
+                        {m.practice && <a href={m.practice} target="_blank" rel="noreferrer" className="rounded-md bg-secondary/60 hover:bg-secondary px-2 py-0.5">Practice</a>}
+                      </div>
                     </div>
                   </div>
                 </div>

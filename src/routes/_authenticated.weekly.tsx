@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { generateWeeklyTasks, getWeeklyTasks, toggleWeeklyTask } from "@/lib/weekly.functions";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Wand2, Calendar, Rocket, BookOpen, Dumbbell, Clock } from "lucide-react";
+import { Loader2, Wand2, Calendar, Rocket, BookOpen, Dumbbell, Clock, Youtube, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/weekly")({
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/weekly")({
   component: WeeklyPage,
 });
 
-type TaskResources = { start_here?: string; learn?: string; practice?: string; estimated_minutes?: number };
+type TaskResources = { start_here?: string; learn?: string; practice?: string; roadmap?: string; youtube?: string; estimated_minutes?: number };
 type Task = { id: string; title: string; detail: string; hours: number; category: string; done?: boolean; resources?: TaskResources };
 
 function WeeklyPage() {
@@ -28,7 +28,13 @@ function WeeklyPage() {
   });
   const toggle = useMutation({
     mutationFn: (taskId: string) => toggleFn({ data: { taskId } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["weekly"] }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["weekly"] });
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      if (res?.xpAwarded) {
+        toast.success(`+${res.xpAwarded} XP · ${res.streakDays}-day streak 🔥`);
+      }
+    },
   });
 
   const tasks = (data?.plan?.tasks as Task[] | undefined) ?? [];
