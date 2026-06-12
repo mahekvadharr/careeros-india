@@ -11,7 +11,8 @@ export const Route = createFileRoute("/_authenticated/roadmap")({
   component: RoadmapPage,
 });
 
-type Item = { title: string; description: string; category: string };
+type ItemResources = { roadmap?: string; course?: string; practice?: string; portfolio_project?: string };
+type Item = { title: string; description: string; category: string; resources?: ItemResources };
 type Semester = { semester: number; title: string; focus: string; items: Item[] };
 
 function RoadmapPage() {
