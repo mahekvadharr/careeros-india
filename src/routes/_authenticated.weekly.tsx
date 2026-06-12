@@ -95,6 +95,16 @@ function WeeklyPage() {
                           <Dumbbell className="h-3 w-3"/> Practice
                         </a>
                       )}
+                      {t.resources.roadmap && (
+                        <a href={t.resources.roadmap} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1">
+                          <MapIcon className="h-3 w-3"/> roadmap.sh
+                        </a>
+                      )}
+                      {t.resources.youtube && (
+                        <a href={t.resources.youtube} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2.5 py-1">
+                          <Youtube className="h-3 w-3"/> Watch
+                        </a>
+                      )}
                       {t.resources.estimated_minutes ? (
                         <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-muted-foreground">
                           <Clock className="h-3 w-3"/> ~{t.resources.estimated_minutes} min
