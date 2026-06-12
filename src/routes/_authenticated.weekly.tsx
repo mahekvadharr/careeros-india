@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { generateWeeklyTasks, getWeeklyTasks, toggleWeeklyTask } from "@/lib/weekly.functions";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Wand2, Calendar } from "lucide-react";
+import { Loader2, Wand2, Calendar, Rocket, BookOpen, Dumbbell, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/weekly")({
@@ -12,7 +12,8 @@ export const Route = createFileRoute("/_authenticated/weekly")({
   component: WeeklyPage,
 });
 
-type Task = { id: string; title: string; detail: string; hours: number; category: string; done?: boolean };
+type TaskResources = { start_here?: string; learn?: string; practice?: string; estimated_minutes?: number };
+type Task = { id: string; title: string; detail: string; hours: number; category: string; done?: boolean; resources?: TaskResources };
 
 function WeeklyPage() {
   const getFn = useServerFn(getWeeklyTasks);
