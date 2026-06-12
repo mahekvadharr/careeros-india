@@ -22,8 +22,20 @@ const WEEKLY_TOOL = {
               detail: { type: "string" },
               hours: { type: "number" },
               category: { type: "string", enum: ["learn", "build", "apply", "network", "review"] },
+              resources: {
+                type: "object",
+                description: "Concrete WHERE-to-do-this links. Prefer roadmap.sh, freeCodeCamp, official docs, LeetCode, GitHub, YouTube.",
+                properties: {
+                  start_here: { type: "string", description: "Single best link to begin (URL)." },
+                  learn: { type: "string", description: "Primary learning resource URL (course, tutorial, docs)." },
+                  practice: { type: "string", description: "Practice platform URL (LeetCode set, project brief, exercise)." },
+                  estimated_minutes: { type: "integer", minimum: 15, maximum: 600 },
+                },
+                required: ["start_here", "learn", "practice", "estimated_minutes"],
+                additionalProperties: false,
+              },
             },
-            required: ["title", "detail", "hours", "category"],
+            required: ["title", "detail", "hours", "category", "resources"],
             additionalProperties: false,
           },
         },
@@ -53,7 +65,7 @@ export const generateWeeklyTasks = createServerFn({ method: "POST" })
       .single();
     if (!profile) throw new Error("Profile not found");
 
-    const sys = `You are CareerOS, a premium AI career coach for Indian engineering students. Generate this week's focused action plan. Be concrete and Indian-context aware.`;
+    const sys = `You are CareerOS, a premium AI career coach for Indian engineering students. Generate this week's focused action plan. Be concrete and Indian-context aware. For every task, include real, working resource URLs in the resources object: a start_here link, a learning resource (course/tutorial/docs), and a practice resource (LeetCode set, GitHub project brief, exercise). Prefer roadmap.sh (https://roadmap.sh/...) for technical/software topics, freeCodeCamp, official docs, LeetCode, GitHub, YouTube.`;
     const user = `Profile: branch=${profile.branch}, year=${profile.year}, target=${profile.target_career}, dream companies=${(profile.dream_companies ?? []).join(", ")}, skills=${(profile.current_skills ?? []).join(", ")}, weekly hours=${profile.weekly_hours}. Generate 5-7 tasks for this week totaling ~${profile.weekly_hours} hours.`;
 
     const { toolArguments } = await callGemini({

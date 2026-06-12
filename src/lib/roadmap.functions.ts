@@ -28,8 +28,20 @@ const ROADMAP_TOOL = {
                     title: { type: "string" },
                     description: { type: "string" },
                     category: { type: "string", enum: ["skill", "project", "internship", "networking", "placement"] },
+                    resources: {
+                      type: "object",
+                      description: "Actionable links. Use roadmap.sh for any technical skill or software role.",
+                      properties: {
+                        roadmap: { type: "string", description: "roadmap.sh URL (or equivalent) for the skill/role." },
+                        course: { type: "string", description: "Recommended course URL (Coursera, freeCodeCamp, Udemy, official docs)." },
+                        practice: { type: "string", description: "Practice platform URL (LeetCode, HackerRank, Kaggle, Frontend Mentor)." },
+                        portfolio_project: { type: "string", description: "Concrete portfolio project idea to ship for this item." },
+                      },
+                      required: ["roadmap", "course", "practice", "portfolio_project"],
+                      additionalProperties: false,
+                    },
                   },
-                  required: ["title", "description", "category"],
+                  required: ["title", "description", "category", "resources"],
                   additionalProperties: false,
                 },
               },
@@ -56,7 +68,7 @@ export const generateRoadmap = createServerFn({ method: "POST" })
       .single();
     if (!profile) throw new Error("Profile not found");
 
-    const systemPrompt = `You are CareerOS, a premium AI career strategist specifically for Indian engineering students. Generate a precise, actionable, semester-wise roadmap tailored to the student's profile. Focus on Indian context (placement season, internships at Indian and global companies, Indian college calendar). Be specific, not generic.`;
+    const systemPrompt = `You are CareerOS, a premium AI career strategist specifically for Indian engineering students. Generate a precise, actionable, semester-wise roadmap tailored to the student's profile. Focus on Indian context (placement season, internships at Indian and global companies, Indian college calendar). Be specific, not generic. For every item, include real working URLs in the resources object: a roadmap link (prefer https://roadmap.sh/... for any technical skill or software role), a recommended course (Coursera, freeCodeCamp, Udemy, NPTEL, official docs), a practice platform (LeetCode, HackerRank, Kaggle, Frontend Mentor), and a concrete portfolio project idea to ship.`;
 
     const userPrompt = `Student profile:
 - Branch: ${profile.branch}

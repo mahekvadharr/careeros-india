@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { generateWeeklyTasks, getWeeklyTasks, toggleWeeklyTask } from "@/lib/weekly.functions";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Wand2, Calendar } from "lucide-react";
+import { Loader2, Wand2, Calendar, Rocket, BookOpen, Dumbbell, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/weekly")({
@@ -12,7 +12,8 @@ export const Route = createFileRoute("/_authenticated/weekly")({
   component: WeeklyPage,
 });
 
-type Task = { id: string; title: string; detail: string; hours: number; category: string; done?: boolean };
+type TaskResources = { start_here?: string; learn?: string; practice?: string; estimated_minutes?: number };
+type Task = { id: string; title: string; detail: string; hours: number; category: string; done?: boolean; resources?: TaskResources };
 
 function WeeklyPage() {
   const getFn = useServerFn(getWeeklyTasks);
@@ -69,6 +70,33 @@ function WeeklyPage() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{t.detail}</p>
+                {t.resources && (t.resources.start_here || t.resources.learn || t.resources.practice) && (
+                  <div className="mt-3 rounded-xl border border-border/40 bg-background/40 p-3">
+                    <div className="text-[10px] uppercase tracking-widest text-gold/80 mb-2">Resources</div>
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {t.resources.start_here && (
+                        <a href={t.resources.start_here} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1">
+                          <Rocket className="h-3 w-3"/> Start here
+                        </a>
+                      )}
+                      {t.resources.learn && (
+                        <a href={t.resources.learn} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-secondary/60 hover:bg-secondary px-2.5 py-1">
+                          <BookOpen className="h-3 w-3"/> Learn
+                        </a>
+                      )}
+                      {t.resources.practice && (
+                        <a href={t.resources.practice} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-secondary/60 hover:bg-secondary px-2.5 py-1">
+                          <Dumbbell className="h-3 w-3"/> Practice
+                        </a>
+                      )}
+                      {t.resources.estimated_minutes ? (
+                        <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-muted-foreground">
+                          <Clock className="h-3 w-3"/> ~{t.resources.estimated_minutes} min
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}

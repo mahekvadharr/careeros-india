@@ -48,8 +48,12 @@ const SKILLGAP_TOOL = {
               name: { type: "string" },
               priority: { type: "string", enum: ["high", "medium", "low"] },
               why: { type: "string" },
+              roadmap: { type: "string", description: "roadmap.sh URL (or equivalent) for the missing skill. Required for technical skills." },
+              course: { type: "string", description: "Recommended course URL." },
+              practice: { type: "string", description: "Practice platform URL." },
+              weeks_to_job_ready: { type: "integer", minimum: 1, maximum: 52 },
             },
-            required: ["name", "priority", "why"],
+            required: ["name", "priority", "why", "roadmap", "course", "practice", "weeks_to_job_ready"],
             additionalProperties: false,
           },
         },
@@ -62,9 +66,12 @@ const SKILLGAP_TOOL = {
             properties: {
               skill: { type: "string" },
               weeks: { type: "integer", minimum: 1, maximum: 24 },
-              resource: { type: "string" },
+              resource: { type: "string", description: "Primary resource URL or title." },
+              roadmap: { type: "string", description: "roadmap.sh URL when applicable." },
+              course: { type: "string", description: "Recommended course URL." },
+              practice: { type: "string", description: "Practice platform URL." },
             },
-            required: ["skill", "weeks", "resource"],
+            required: ["skill", "weeks", "resource", "roadmap", "course", "practice"],
             additionalProperties: false,
           },
         },
@@ -89,7 +96,7 @@ export const analyzeSkillGap = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
 
-    const sys = `You are a precise career analyst. Compare the student's current skills with what a ${data.target_role} role demands in the Indian job market in 2026. Calibrate the match percentage realistically.`;
+    const sys = `You are a precise career analyst. Compare the student's current skills with what a ${data.target_role} role demands in the Indian job market in 2026. Calibrate the match percentage realistically. For every missing skill and learning plan item, include real, current resource URLs: prefer roadmap.sh (https://roadmap.sh/...) for technical skills and software roles, plus a real course (freeCodeCamp, Coursera, Udemy, official docs) and a real practice platform (LeetCode, HackerRank, Frontend Mentor, Kaggle, Codeforces).`;
     const user = `Student — branch: ${profile?.branch ?? "?"}, year: ${profile?.year ?? "?"}, skills: ${(profile?.current_skills ?? []).join(", ") || "none"}. Target role: ${data.target_role}.`;
 
     const { toolArguments } = await callGemini({
