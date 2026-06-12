@@ -96,7 +96,7 @@ export const analyzeSkillGap = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
 
-    const sys = `You are a precise career analyst. Compare the student's current skills with what a ${data.target_role} role demands in the Indian job market in 2026. Calibrate the match percentage realistically.`;
+    const sys = `You are a precise career analyst. Compare the student's current skills with what a ${data.target_role} role demands in the Indian job market in 2026. Calibrate the match percentage realistically. For every missing skill and learning plan item, include real, current resource URLs: prefer roadmap.sh (https://roadmap.sh/...) for technical skills and software roles, plus a real course (freeCodeCamp, Coursera, Udemy, official docs) and a real practice platform (LeetCode, HackerRank, Frontend Mentor, Kaggle, Codeforces).`;
     const user = `Student — branch: ${profile?.branch ?? "?"}, year: ${profile?.year ?? "?"}, skills: ${(profile?.current_skills ?? []).join(", ") || "none"}. Target role: ${data.target_role}.`;
 
     const { toolArguments } = await callGemini({
