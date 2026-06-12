@@ -104,11 +104,14 @@ export type Database = {
           full_name: string | null
           id: string
           is_pro: boolean
+          last_active_date: string | null
           onboarded: boolean
+          streak_days: number
           target_career: string | null
           updated_at: string
           user_id: string
           weekly_hours: number | null
+          xp: number
           year: number | null
         }
         Insert: {
@@ -122,11 +125,14 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_pro?: boolean
+          last_active_date?: string | null
           onboarded?: boolean
+          streak_days?: number
           target_career?: string | null
           updated_at?: string
           user_id: string
           weekly_hours?: number | null
+          xp?: number
           year?: number | null
         }
         Update: {
@@ -140,11 +146,14 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_pro?: boolean
+          last_active_date?: string | null
           onboarded?: boolean
+          streak_days?: number
           target_career?: string | null
           updated_at?: string
           user_id?: string
           weekly_hours?: number | null
+          xp?: number
           year?: number | null
         }
         Relationships: []

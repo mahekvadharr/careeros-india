@@ -29,9 +29,11 @@ const WEEKLY_TOOL = {
                   start_here: { type: "string", description: "Single best link to begin (URL)." },
                   learn: { type: "string", description: "Primary learning resource URL (course, tutorial, docs)." },
                   practice: { type: "string", description: "Practice platform URL (LeetCode set, project brief, exercise)." },
+                  roadmap: { type: "string", description: "roadmap.sh URL when applicable." },
+                  youtube: { type: "string", description: "Real YouTube video or playlist URL that teaches this task's topic." },
                   estimated_minutes: { type: "integer", minimum: 15, maximum: 600 },
                 },
-                required: ["start_here", "learn", "practice", "estimated_minutes"],
+                required: ["start_here", "learn", "practice", "roadmap", "youtube", "estimated_minutes"],
                 additionalProperties: false,
               },
             },
@@ -65,8 +67,20 @@ export const generateWeeklyTasks = createServerFn({ method: "POST" })
       .single();
     if (!profile) throw new Error("Profile not found");
 
-    const sys = `You are CareerOS, a premium AI career coach for Indian engineering students. Generate this week's focused action plan. Be concrete and Indian-context aware. For every task, include real, working resource URLs in the resources object: a start_here link, a learning resource (course/tutorial/docs), and a practice resource (LeetCode set, GitHub project brief, exercise). Prefer roadmap.sh (https://roadmap.sh/...) for technical/software topics, freeCodeCamp, official docs, LeetCode, GitHub, YouTube.`;
-    const user = `Profile: branch=${profile.branch}, year=${profile.year}, target=${profile.target_career}, dream companies=${(profile.dream_companies ?? []).join(", ")}, skills=${(profile.current_skills ?? []).join(", ")}, weekly hours=${profile.weekly_hours}. Generate 5-7 tasks for this week totaling ~${profile.weekly_hours} hours.`;
+    const { data: gap } = await supabase
+      .from("skill_gap_results")
+      .select("target_role, missing_skills, learning_plan")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const gapContext = gap
+      ? `Latest Skill Gap (target: ${gap.target_role}). Build this week's missions by taking 1-3 next steps from these missing skills and converting them into small daily tasks. Reuse the same roadmap.sh / YouTube links from the gap when relevant.\n\nMissing skills:\n${JSON.stringify(gap.missing_skills).slice(0, 4000)}\n\nLearning plan:\n${JSON.stringify(gap.learning_plan).slice(0, 2000)}`
+      : `No skill gap analysis yet — generate a balanced week based on the profile alone.`;
+
+    const sys = `You are CareerOS, a premium AI career coach for Indian engineering students. Generate this week's focused action plan as small, Duolingo-style daily tasks (NOT vague goals). Each task must be tiny and specific — e.g. "Watch <video> + solve 5 array problems on LeetCode + read roadmap.sh JS Basics", not "Learn JavaScript". For every task fill the resources object with REAL working URLs: start_here, learn, practice, roadmap (roadmap.sh page), and youtube (real YouTube video/playlist that teaches the topic — prefer freeCodeCamp, Apna College, CodeWithHarry, Fireship, Traversy Media, NeetCode).`;
+    const user = `Profile: branch=${profile.branch}, year=${profile.year}, target=${profile.target_career}, dream companies=${(profile.dream_companies ?? []).join(", ")}, skills=${(profile.current_skills ?? []).join(", ")}, weekly hours=${profile.weekly_hours}.\n\n${gapContext}\n\nGenerate 5-7 tasks totaling ~${profile.weekly_hours} hours.`;
 
     const { toolArguments } = await callGemini({
       messages: [{ role: "system", content: sys }, { role: "user", content: user }],
@@ -110,9 +124,39 @@ export const toggleWeeklyTask = createServerFn({ method: "POST" })
       .eq("week_start", week)
       .maybeSingle();
     if (!row) throw new Error("No weekly plan yet");
-    const tasks = (row.tasks as Array<{ id: string; done?: boolean }>).map((t) =>
-      t.id === data.taskId ? { ...t, done: !t.done } : t,
-    );
+    const prevTasks = row.tasks as Array<{ id: string; done?: boolean }>;
+    const prev = prevTasks.find((t) => t.id === data.taskId);
+    const nowDone = !(prev?.done);
+    const tasks = prevTasks.map((t) => (t.id === data.taskId ? { ...t, done: nowDone } : t));
     await supabase.from("weekly_tasks").update({ tasks }).eq("id", row.id);
-    return { tasks };
+
+    // XP + streak — only when marking complete
+    let xpAwarded = 0;
+    let streakDays = 0;
+    let totalXp = 0;
+    if (nowDone) {
+      xpAwarded = 25;
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("xp, streak_days, last_active_date")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const today = new Date().toISOString().slice(0, 10);
+      const last = prof?.last_active_date as string | null | undefined;
+      let nextStreak = prof?.streak_days ?? 0;
+      if (last === today) {
+        // already counted today
+      } else if (last && new Date(today).getTime() - new Date(last).getTime() === 86400000) {
+        nextStreak += 1;
+      } else {
+        nextStreak = 1;
+      }
+      totalXp = (prof?.xp ?? 0) + xpAwarded;
+      streakDays = nextStreak;
+      await supabase
+        .from("profiles")
+        .update({ xp: totalXp, streak_days: streakDays, last_active_date: today })
+        .eq("user_id", userId);
+    }
+    return { tasks, xpAwarded, streakDays, totalXp };
   });

@@ -52,8 +52,30 @@ const SKILLGAP_TOOL = {
               course: { type: "string", description: "Recommended course URL." },
               practice: { type: "string", description: "Practice platform URL." },
               weeks_to_job_ready: { type: "integer", minimum: 1, maximum: 52 },
+              steps: {
+                type: "array",
+                minItems: 3,
+                maxItems: 8,
+                description: "Ordered learning steps — what to learn, in what order. Each step is a short, concrete sub-topic.",
+                items: { type: "string" },
+              },
+              youtube_videos: {
+                type: "array",
+                minItems: 2,
+                maxItems: 3,
+                description: "Real YouTube video or playlist URLs that teach this skill. Prefer freeCodeCamp, Apna College, CodeWithHarry, Fireship, Traversy Media, etc.",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    url: { type: "string", description: "Full https://www.youtube.com/... URL" },
+                  },
+                  required: ["title", "url"],
+                  additionalProperties: false,
+                },
+              },
             },
-            required: ["name", "priority", "why", "roadmap", "course", "practice", "weeks_to_job_ready"],
+            required: ["name", "priority", "why", "roadmap", "course", "practice", "weeks_to_job_ready", "steps", "youtube_videos"],
             additionalProperties: false,
           },
         },
@@ -96,7 +118,16 @@ export const analyzeSkillGap = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .maybeSingle();
 
-    const sys = `You are a precise career analyst. Compare the student's current skills with what a ${data.target_role} role demands in the Indian job market in 2026. Calibrate the match percentage realistically. For every missing skill and learning plan item, include real, current resource URLs: prefer roadmap.sh (https://roadmap.sh/...) for technical skills and software roles, plus a real course (freeCodeCamp, Coursera, Udemy, official docs) and a real practice platform (LeetCode, HackerRank, Frontend Mentor, Kaggle, Codeforces).`;
+    const sys = `You are a precise career analyst. Compare the student's current skills with what a ${data.target_role} role demands in the Indian job market in 2026. Calibrate the match percentage realistically.
+
+For every missing skill produce a guided learning path:
+- steps: 3-8 ordered sub-topics ("what to learn, in what order"). Concrete, not vague.
+- roadmap: a real roadmap.sh page (e.g. https://roadmap.sh/backend, /frontend, /devops, /system-design, /ai-data-scientist, /python, /javascript). Use the most specific page that applies.
+- course: a real course URL (freeCodeCamp, Coursera, Udemy, official docs).
+- practice: a real practice platform URL (LeetCode, HackerRank, Frontend Mentor, Kaggle, Codeforces, Excalidraw exercises).
+- youtube_videos: 2-3 real YouTube video or playlist URLs that actually teach this skill (prefer freeCodeCamp, Apna College, CodeWithHarry, Fireship, Traversy Media, NeetCode, Hitesh Choudhary).
+
+For learning_plan items, include the same kind of real, working URLs. All URLs must be plausible and currently reachable — never fabricate paths.`;
     const user = `Student — branch: ${profile?.branch ?? "?"}, year: ${profile?.year ?? "?"}, skills: ${(profile?.current_skills ?? []).join(", ") || "none"}. Target role: ${data.target_role}.`;
 
     const { toolArguments } = await callGemini({
