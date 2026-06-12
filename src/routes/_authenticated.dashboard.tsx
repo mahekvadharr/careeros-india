@@ -7,7 +7,7 @@ import { getRoadmap } from "@/lib/roadmap.functions";
 import { getReadiness } from "@/lib/readiness.functions";
 import { listResumeAnalyses } from "@/lib/resume.functions";
 import { Progress } from "@/components/ui/progress";
-import { ArrowRight, Calendar, Map, MessageCircle, Sparkles, Target, FileText, Gauge } from "lucide-react";
+import { ArrowRight, Calendar, Map, MessageCircle, Sparkles, Target, FileText, Gauge, Flame, Zap } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -47,7 +47,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-5 mb-10">
+      <div className="grid lg:grid-cols-3 gap-5 mb-6">
         <div className="glass-card rounded-3xl p-7 lg:col-span-2 relative overflow-hidden">
           <div className="absolute -top-20 -right-20 h-48 w-48 bg-primary/15 blur-3xl rounded-full" />
           <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Career Score</p>
@@ -69,6 +69,35 @@ function Dashboard() {
           </div>
         </div>
       </div>
+
+      <div className="grid sm:grid-cols-2 gap-5 mb-10">
+        <div className="glass-card rounded-3xl p-6 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-gold/15 grid place-items-center"><Zap className="h-6 w-6 text-gold"/></div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Total XP</p>
+            <div className="font-display text-3xl gold-text">{profile?.xp ?? 0}</div>
+          </div>
+        </div>
+        <div className="glass-card rounded-3xl p-6 flex items-center gap-4">
+          <div className="h-12 w-12 rounded-full bg-orange-500/15 grid place-items-center"><Flame className="h-6 w-6 text-orange-400"/></div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Streak</p>
+            <div className="font-display text-3xl">{profile?.streak_days ?? 0} <span className="text-base text-muted-foreground">days</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-3xl p-6 mb-10 flex items-center gap-4 border-gold/30">
+        <div className="h-10 w-10 rounded-full bg-gold/15 grid place-items-center shrink-0"><ArrowRight className="h-5 w-5 text-gold"/></div>
+        <div className="flex-1">
+          <p className="text-xs uppercase tracking-[0.25em] text-gold">Your next step today</p>
+          <p className="font-display text-lg mt-1">
+            {tasks.find((t) => !t.done)?.title ?? (tasks.length ? "All tasks done — generate next week's plan." : "Generate this week's plan to get your first mission.")}
+          </p>
+        </div>
+        <Link to={tasks.length ? "/weekly" : "/weekly"} className="text-xs uppercase tracking-widest text-gold hover:underline shrink-0">Open →</Link>
+      </div>
+
 
       <div className="grid lg:grid-cols-3 gap-5">
         <DashCard to="/readiness" icon={Gauge} label="Readiness" title={readinessScore !== null ? `${readinessScore}/100` : "Compute now"} subtitle={readinessScore !== null ? `${ready?.readiness?.estimated_weeks ?? 0} weeks to 90+` : "Across resume, skills, projects"} />
