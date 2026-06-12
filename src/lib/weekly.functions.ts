@@ -124,9 +124,39 @@ export const toggleWeeklyTask = createServerFn({ method: "POST" })
       .eq("week_start", week)
       .maybeSingle();
     if (!row) throw new Error("No weekly plan yet");
-    const tasks = (row.tasks as Array<{ id: string; done?: boolean }>).map((t) =>
-      t.id === data.taskId ? { ...t, done: !t.done } : t,
-    );
+    const prevTasks = row.tasks as Array<{ id: string; done?: boolean }>;
+    const prev = prevTasks.find((t) => t.id === data.taskId);
+    const nowDone = !(prev?.done);
+    const tasks = prevTasks.map((t) => (t.id === data.taskId ? { ...t, done: nowDone } : t));
     await supabase.from("weekly_tasks").update({ tasks }).eq("id", row.id);
-    return { tasks };
+
+    // XP + streak — only when marking complete
+    let xpAwarded = 0;
+    let streakDays = 0;
+    let totalXp = 0;
+    if (nowDone) {
+      xpAwarded = 25;
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("xp, streak_days, last_active_date")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const today = new Date().toISOString().slice(0, 10);
+      const last = prof?.last_active_date as string | null | undefined;
+      let nextStreak = prof?.streak_days ?? 0;
+      if (last === today) {
+        // already counted today
+      } else if (last && new Date(today).getTime() - new Date(last).getTime() === 86400000) {
+        nextStreak += 1;
+      } else {
+        nextStreak = 1;
+      }
+      totalXp = (prof?.xp ?? 0) + xpAwarded;
+      streakDays = nextStreak;
+      await supabase
+        .from("profiles")
+        .update({ xp: totalXp, streak_days: streakDays, last_active_date: today })
+        .eq("user_id", userId);
+    }
+    return { tasks, xpAwarded, streakDays, totalXp };
   });
