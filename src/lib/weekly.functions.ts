@@ -94,29 +94,26 @@ STRICT LINK RULES (any violation = failure):
       tool_choice: { type: "function", function: { name: "emit_weekly_tasks" } },
     });
     const rawTasks = ((toolArguments as { tasks?: unknown[] })?.tasks ?? []) as Array<Record<string, unknown>>;
-    const { cleanYouTube, cleanRoadmap, cleanGeneric } = await import("./link-sanitize.server");
-    const used = new Set<string>();
-    let fcc = false;
-    const uniq = (u: string) => (!u || used.has(u) ? "" : (used.add(u), u));
-    const cleanCourse = (u: unknown) => {
-      const c = cleanGeneric(u);
-      if (!c) return "";
-      if (/freecodecamp\.org/i.test(c)) { if (fcc) return ""; fcc = true; }
-      return uniq(c);
-    };
+    // Resources come ONLY from the curated DB. We match by the task title/detail
+    // against known skill keys; if no match, links are omitted (UI shows
+    // "Resource currently unavailable").
+    const { lookupSkill } = await import("./resource-db.server");
     const tasks = rawTasks.map((t, i) => {
+      const haystack = `${t.title ?? ""} ${t.detail ?? ""}`;
+      const db = lookupSkill(haystack);
+      const video = db?.videos?.[0];
       const res = (t.resources ?? {}) as Record<string, unknown>;
       return {
         id: `${Date.now()}-${i}`,
         done: false,
         ...t,
         resources: {
-          ...res,
-          youtube: uniq(cleanYouTube(res.youtube)),
-          roadmap: cleanRoadmap(res.roadmap),
-          start_here: uniq(cleanGeneric(res.start_here)),
-          learn: cleanCourse(res.learn),
-          practice: uniq(cleanGeneric(res.practice)),
+          estimated_minutes: typeof res.estimated_minutes === "number" ? res.estimated_minutes : 60,
+          start_here: db?.docs ?? db?.course ?? db?.roadmap ?? "",
+          learn: db?.course ?? db?.docs ?? "",
+          practice: db?.practice ?? "",
+          roadmap: db?.roadmap ?? "",
+          youtube: video?.url ?? "",
         },
       };
     });

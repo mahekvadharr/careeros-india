@@ -141,40 +141,33 @@ For learning_plan items, follow the same link rules.`;
     });
     const r = (toolArguments ?? {}) as Record<string, unknown>;
 
-    // Strip fabricated / malformed external links before persisting.
-    const { cleanYouTube, cleanRoadmap, cleanGeneric, dedupeVideos } = await import("./link-sanitize.server");
-    const usedUrls = new Set<string>();
-    const uniq = (u: string) => {
-      if (!u || usedUrls.has(u)) return "";
-      usedUrls.add(u);
-      return u;
-    };
-    let fccUsed = false;
-    const cleanCourse = (u: unknown) => {
-      const c = cleanGeneric(u);
-      if (!c) return "";
-      const isFcc = /freecodecamp\.org/i.test(c);
-      if (isFcc && fccUsed) return "";
-      if (isFcc) fccUsed = true;
-      return uniq(c);
-    };
+    // Replace AI-emitted links entirely with curated, hand-verified entries.
+    // If a skill is not in the database, NO link is shown (UI falls back to
+    // "Resource currently unavailable").
+    const { lookupSkill } = await import("./resource-db.server");
 
     const missing = Array.isArray(r.missing_skills) ? (r.missing_skills as Array<Record<string, unknown>>) : [];
-    const cleanedMissing = missing.map((m) => ({
-      ...m,
-      roadmap: cleanRoadmap(m.roadmap),
-      course: cleanCourse(m.course),
-      practice: uniq(cleanGeneric(m.practice)),
-      youtube_videos: dedupeVideos(m.youtube_videos).filter((v) => !usedUrls.has(v.url) && (usedUrls.add(v.url), true)),
-    }));
+    const cleanedMissing = missing.map((m) => {
+      const db = lookupSkill(String(m.name ?? ""));
+      return {
+        ...m,
+        roadmap: db?.roadmap ?? "",
+        course: db?.course ?? db?.docs ?? "",
+        practice: db?.practice ?? "",
+        youtube_videos: db?.videos ?? [],
+      };
+    });
 
     const plan = Array.isArray(r.learning_plan) ? (r.learning_plan as Array<Record<string, unknown>>) : [];
-    const cleanedPlan = plan.map((p) => ({
-      ...p,
-      roadmap: cleanRoadmap(p.roadmap),
-      course: cleanCourse(p.course),
-      practice: uniq(cleanGeneric(p.practice)),
-    }));
+    const cleanedPlan = plan.map((p) => {
+      const db = lookupSkill(String(p.skill ?? ""));
+      return {
+        ...p,
+        roadmap: db?.roadmap ?? "",
+        course: db?.course ?? db?.docs ?? "",
+        practice: db?.practice ?? "",
+      };
+    });
 
     const { data: row, error } = await supabase
       .from("skill_gap_results")
