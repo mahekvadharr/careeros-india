@@ -141,6 +141,41 @@ For learning_plan items, follow the same link rules.`;
     });
     const r = (toolArguments ?? {}) as Record<string, unknown>;
 
+    // Strip fabricated / malformed external links before persisting.
+    const { cleanYouTube, cleanRoadmap, cleanGeneric, dedupeVideos } = await import("./link-sanitize.server");
+    const usedUrls = new Set<string>();
+    const uniq = (u: string) => {
+      if (!u || usedUrls.has(u)) return "";
+      usedUrls.add(u);
+      return u;
+    };
+    let fccUsed = false;
+    const cleanCourse = (u: unknown) => {
+      const c = cleanGeneric(u);
+      if (!c) return "";
+      const isFcc = /freecodecamp\.org/i.test(c);
+      if (isFcc && fccUsed) return "";
+      if (isFcc) fccUsed = true;
+      return uniq(c);
+    };
+
+    const missing = Array.isArray(r.missing_skills) ? (r.missing_skills as Array<Record<string, unknown>>) : [];
+    const cleanedMissing = missing.map((m) => ({
+      ...m,
+      roadmap: cleanRoadmap(m.roadmap),
+      course: cleanCourse(m.course),
+      practice: uniq(cleanGeneric(m.practice)),
+      youtube_videos: dedupeVideos(m.youtube_videos).filter((v) => !usedUrls.has(v.url) && (usedUrls.add(v.url), true)),
+    }));
+
+    const plan = Array.isArray(r.learning_plan) ? (r.learning_plan as Array<Record<string, unknown>>) : [];
+    const cleanedPlan = plan.map((p) => ({
+      ...p,
+      roadmap: cleanRoadmap(p.roadmap),
+      course: cleanCourse(p.course),
+      practice: uniq(cleanGeneric(p.practice)),
+    }));
+
     const { data: row, error } = await supabase
       .from("skill_gap_results")
       .insert({
@@ -149,8 +184,8 @@ For learning_plan items, follow the same link rules.`;
         match_percentage: (r.match_percentage as number) ?? 0,
         required_skills: (r.required_skills as never) ?? ([] as never),
         matched_skills: (r.matched_skills as never) ?? ([] as never),
-        missing_skills: (r.missing_skills as never) ?? ([] as never),
-        learning_plan: (r.learning_plan as never) ?? ([] as never),
+        missing_skills: cleanedMissing as never,
+        learning_plan: cleanedPlan as never,
         estimated_weeks: (r.estimated_weeks as number) ?? 0,
       })
       .select()
