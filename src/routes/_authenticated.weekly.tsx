@@ -76,41 +76,45 @@ function WeeklyPage() {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{t.detail}</p>
-                {t.resources && (t.resources.start_here || t.resources.learn || t.resources.practice) && (
+                {t.resources && (
                   <div className="mt-3 rounded-xl border border-border/40 bg-background/40 p-3">
                     <div className="text-[10px] uppercase tracking-widest text-gold/80 mb-2">Resources</div>
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      {t.resources.start_here && (
-                        <a href={t.resources.start_here} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1">
-                          <Rocket className="h-3 w-3"/> Start here
-                        </a>
-                      )}
-                      {t.resources.learn && (
-                        <a href={t.resources.learn} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-secondary/60 hover:bg-secondary px-2.5 py-1">
-                          <BookOpen className="h-3 w-3"/> Learn
-                        </a>
-                      )}
-                      {t.resources.practice && (
-                        <a href={t.resources.practice} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-secondary/60 hover:bg-secondary px-2.5 py-1">
-                          <Dumbbell className="h-3 w-3"/> Practice
-                        </a>
-                      )}
-                      {t.resources.roadmap && (
-                        <a href={t.resources.roadmap} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1">
-                          <MapIcon className="h-3 w-3"/> roadmap.sh
-                        </a>
-                      )}
-                      {t.resources.youtube && (
-                        <a href={t.resources.youtube} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2.5 py-1">
-                          <Youtube className="h-3 w-3"/> Watch
-                        </a>
-                      )}
-                      {t.resources.estimated_minutes ? (
-                        <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-muted-foreground">
-                          <Clock className="h-3 w-3"/> ~{t.resources.estimated_minutes} min
-                        </span>
-                      ) : null}
-                    </div>
+                    {!(t.resources.start_here || t.resources.learn || t.resources.practice || t.resources.roadmap || t.resources.youtube) ? (
+                      <p className="text-xs text-muted-foreground italic">Resource currently unavailable for this task.</p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        {t.resources.start_here && (
+                          <a href={t.resources.start_here} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1 transition-colors">
+                            <Rocket className="h-3 w-3"/> Start here
+                          </a>
+                        )}
+                        {t.resources.learn && (
+                          <a href={t.resources.learn} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-md bg-secondary/60 hover:bg-secondary px-2.5 py-1 transition-colors">
+                            <BookOpen className="h-3 w-3"/> Learn
+                          </a>
+                        )}
+                        {t.resources.practice && (
+                          <a href={t.resources.practice} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-md bg-secondary/60 hover:bg-secondary px-2.5 py-1 transition-colors">
+                            <Dumbbell className="h-3 w-3"/> Practice
+                          </a>
+                        )}
+                        {t.resources.roadmap && (
+                          <a href={t.resources.roadmap} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-md bg-gold/10 hover:bg-gold/20 text-gold px-2.5 py-1 transition-colors">
+                            <MapIcon className="h-3 w-3"/> roadmap.sh
+                          </a>
+                        )}
+                        {t.resources.youtube && (
+                          <a href={t.resources.youtube} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2.5 py-1 transition-colors">
+                            <Youtube className="h-3 w-3"/> Watch
+                          </a>
+                        )}
+                        {t.resources.estimated_minutes ? (
+                          <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-muted-foreground">
+                            <Clock className="h-3 w-3"/> ~{t.resources.estimated_minutes} min
+                          </span>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
