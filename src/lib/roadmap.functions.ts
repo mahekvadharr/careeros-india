@@ -96,7 +96,33 @@ Generate a roadmap of 6 to 8 semesters starting from semester ${(((profile.year 
       tool_choice: { type: "function", function: { name: "emit_roadmap" } },
     });
 
-    const semesters = (toolArguments as { semesters?: unknown })?.semesters ?? [];
+    const rawSemesters = ((toolArguments as { semesters?: unknown })?.semesters ?? []) as Array<Record<string, unknown>>;
+
+    const { cleanRoadmap, cleanGeneric } = await import("./link-sanitize.server");
+    const used = new Set<string>();
+    let fcc = false;
+    const uniq = (u: string) => (!u || used.has(u) ? "" : (used.add(u), u));
+    const cleanCourse = (u: unknown) => {
+      const c = cleanGeneric(u);
+      if (!c) return "";
+      if (/freecodecamp\.org/i.test(c)) { if (fcc) return ""; fcc = true; }
+      return uniq(c);
+    };
+    const semesters = rawSemesters.map((s) => ({
+      ...s,
+      items: Array.isArray(s.items) ? (s.items as Array<Record<string, unknown>>).map((it) => {
+        const res = (it.resources ?? {}) as Record<string, unknown>;
+        return {
+          ...it,
+          resources: {
+            roadmap: cleanRoadmap(res.roadmap),
+            course: cleanCourse(res.course),
+            practice: uniq(cleanGeneric(res.practice)),
+            portfolio_project: typeof res.portfolio_project === "string" ? res.portfolio_project : "",
+          },
+        };
+      }) : [],
+    }));
 
     // Upsert
     const { data: existing } = await supabase
