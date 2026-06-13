@@ -79,7 +79,13 @@ export const generateWeeklyTasks = createServerFn({ method: "POST" })
       ? `Latest Skill Gap (target: ${gap.target_role}). Build this week's missions by taking 1-3 next steps from these missing skills and converting them into small daily tasks. Reuse the same roadmap.sh / YouTube links from the gap when relevant.\n\nMissing skills:\n${JSON.stringify(gap.missing_skills).slice(0, 4000)}\n\nLearning plan:\n${JSON.stringify(gap.learning_plan).slice(0, 2000)}`
       : `No skill gap analysis yet — generate a balanced week based on the profile alone.`;
 
-    const sys = `You are CareerOS, a premium AI career coach for Indian engineering students. Generate this week's focused action plan as small, Duolingo-style daily tasks (NOT vague goals). Each task must be tiny and specific — e.g. "Watch <video> + solve 5 array problems on LeetCode + read roadmap.sh JS Basics", not "Learn JavaScript". For every task fill the resources object with REAL working URLs: start_here, learn, practice, roadmap (roadmap.sh page), and youtube (real YouTube video/playlist that teaches the topic — prefer freeCodeCamp, Apna College, CodeWithHarry, Fireship, Traversy Media, NeetCode).`;
+    const sys = `You are CareerOS, a premium AI career coach for Indian engineering students. Generate this week's focused action plan as small, Duolingo-style daily tasks (NOT vague goals). Each task must be tiny and specific — e.g. "Watch <video> + solve 5 array problems on LeetCode", not "Learn JavaScript".
+
+STRICT LINK RULES (any violation = failure):
+- youtube: ONLY canonical https://www.youtube.com/watch?v=VIDEOID URLs (11-char id). NEVER /embed/, /shorts/, youtu.be, or fake ids. If unsure, leave as "".
+- roadmap: ONLY confirmed roadmap.sh pages (/frontend /backend /full-stack /devops /python /javascript /typescript /react /nodejs /sql /system-design /ai-data-scientist /android /ios /ux-design /product-manager /datastructures-and-algorithms /computer-science). Else "".
+- start_here / learn / practice: only canonical roots of well-known sites (leetcode.com, hackerrank.com, freecodecamp.org/learn, developer.mozilla.org, react.dev, official docs, github.com). No guessed deep paths.
+- Do NOT reuse the same URL across multiple tasks. Use freeCodeCamp at most once across the whole week.`;
     const user = `Profile: branch=${profile.branch}, year=${profile.year}, target=${profile.target_career}, dream companies=${(profile.dream_companies ?? []).join(", ")}, skills=${(profile.current_skills ?? []).join(", ")}, weekly hours=${profile.weekly_hours}.\n\n${gapContext}\n\nGenerate 5-7 tasks totaling ~${profile.weekly_hours} hours.`;
 
     const { toolArguments } = await callGemini({
