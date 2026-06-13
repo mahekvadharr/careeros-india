@@ -146,7 +146,7 @@ function SkillGapPage() {
                       </div>
                     )}
 
-                    {(videos.length > 0 || hasRoadmap || hasCourse || hasPractice) && (
+                    {(videos.length > 0 || hasRoadmap || hasCourse || hasPractice) ? (
                       <div className="mt-4 pt-4 border-t border-border/30">
                         <div className="text-[10px] uppercase tracking-widest text-gold/80 mb-2">Resources</div>
                         <div className="grid gap-2 sm:grid-cols-2">
@@ -181,6 +181,13 @@ function SkillGapPage() {
                             </a>
                           )}
                         </div>
+                        {!hasRoadmap && (
+                          <p className="text-[10px] text-muted-foreground/70 italic mt-2">No official roadmap available yet.</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-4 pt-4 border-t border-border/30">
+                        <p className="text-xs text-muted-foreground italic">Resource currently unavailable — we only show hand-verified links.</p>
                       </div>
                     )}
                   </div>
