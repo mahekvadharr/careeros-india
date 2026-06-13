@@ -68,7 +68,13 @@ export const generateRoadmap = createServerFn({ method: "POST" })
       .single();
     if (!profile) throw new Error("Profile not found");
 
-    const systemPrompt = `You are CareerOS, a premium AI career strategist specifically for Indian engineering students. Generate a precise, actionable, semester-wise roadmap tailored to the student's profile. Focus on Indian context (placement season, internships at Indian and global companies, Indian college calendar). Be specific, not generic. For every item, include real working URLs in the resources object: a roadmap link (prefer https://roadmap.sh/... for any technical skill or software role), a recommended course (Coursera, freeCodeCamp, Udemy, NPTEL, official docs), a practice platform (LeetCode, HackerRank, Kaggle, Frontend Mentor), and a concrete portfolio project idea to ship.`;
+    const systemPrompt = `You are CareerOS, a premium AI career strategist specifically for Indian engineering students. Generate a precise, actionable, semester-wise roadmap tailored to the student's profile (Indian placement/internship context).
+
+STRICT LINK RULES (any violation = failure):
+- roadmap: ONLY confirmed roadmap.sh pages (/frontend /backend /full-stack /devops /python /javascript /typescript /react /nodejs /sql /system-design /ai-data-scientist /android /ios /ux-design /product-manager /datastructures-and-algorithms /computer-science). If none fit, "".
+- course/practice: only canonical roots of well-known sites (coursera.org, freecodecamp.org/learn, udemy.com, nptel.ac.in, leetcode.com, hackerrank.com, kaggle.com/learn, frontendmentor.io, official docs). No guessed deep paths.
+- Do NOT reuse the same URL across multiple items. Use freeCodeCamp sparingly (max once).
+- portfolio_project: short concrete project idea text (not a URL).`;
 
     const userPrompt = `Student profile:
 - Branch: ${profile.branch}
@@ -90,7 +96,33 @@ Generate a roadmap of 6 to 8 semesters starting from semester ${(((profile.year 
       tool_choice: { type: "function", function: { name: "emit_roadmap" } },
     });
 
-    const semesters = (toolArguments as { semesters?: unknown })?.semesters ?? [];
+    const rawSemesters = ((toolArguments as { semesters?: unknown })?.semesters ?? []) as Array<Record<string, unknown>>;
+
+    const { cleanRoadmap, cleanGeneric } = await import("./link-sanitize.server");
+    const used = new Set<string>();
+    let fcc = false;
+    const uniq = (u: string) => (!u || used.has(u) ? "" : (used.add(u), u));
+    const cleanCourse = (u: unknown) => {
+      const c = cleanGeneric(u);
+      if (!c) return "";
+      if (/freecodecamp\.org/i.test(c)) { if (fcc) return ""; fcc = true; }
+      return uniq(c);
+    };
+    const semesters = rawSemesters.map((s) => ({
+      ...s,
+      items: Array.isArray(s.items) ? (s.items as Array<Record<string, unknown>>).map((it) => {
+        const res = (it.resources ?? {}) as Record<string, unknown>;
+        return {
+          ...it,
+          resources: {
+            roadmap: cleanRoadmap(res.roadmap),
+            course: cleanCourse(res.course),
+            practice: uniq(cleanGeneric(res.practice)),
+            portfolio_project: typeof res.portfolio_project === "string" ? res.portfolio_project : "",
+          },
+        };
+      }) : [],
+    }));
 
     // Upsert
     const { data: existing } = await supabase

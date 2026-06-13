@@ -120,14 +120,18 @@ export const analyzeSkillGap = createServerFn({ method: "POST" })
 
     const sys = `You are a precise career analyst. Compare the student's current skills with what a ${data.target_role} role demands in the Indian job market in 2026. Calibrate the match percentage realistically.
 
-For every missing skill produce a guided learning path:
-- steps: 3-8 ordered sub-topics ("what to learn, in what order"). Concrete, not vague.
-- roadmap: a real roadmap.sh page (e.g. https://roadmap.sh/backend, /frontend, /devops, /system-design, /ai-data-scientist, /python, /javascript). Use the most specific page that applies.
-- course: a real course URL (freeCodeCamp, Coursera, Udemy, official docs).
-- practice: a real practice platform URL (LeetCode, HackerRank, Frontend Mentor, Kaggle, Codeforces, Excalidraw exercises).
-- youtube_videos: 2-3 real YouTube video or playlist URLs that actually teach this skill (prefer freeCodeCamp, Apna College, CodeWithHarry, Fireship, Traversy Media, NeetCode, Hitesh Choudhary).
+STRICT LINK RULES (any violation = task failure):
+- YouTube: ONLY canonical watch URLs in the exact form https://www.youtube.com/watch?v=VIDEOID (11-char id). NEVER use /embed/, /shorts/, youtu.be, playlist-only URLs, or made-up ids. If you are not certain a specific video id exists and matches the topic, OMIT it — fewer correct links is better than fake ones.
+- roadmap.sh: ONLY use these confirmed pages — https://roadmap.sh/frontend, /backend, /full-stack, /devops, /python, /javascript, /typescript, /react, /nodejs, /sql, /system-design, /ai-data-scientist, /android, /ios, /design-system, /ux-design, /product-manager, /qa, /computer-science, /datastructures-and-algorithms. If none fit, leave roadmap as empty string "".
+- course/practice: only well-known canonical roots (https://www.freecodecamp.org/learn, https://www.coursera.org, https://www.udemy.com, https://leetcode.com, https://www.hackerrank.com, https://www.frontendmentor.io, https://www.kaggle.com/learn, https://developer.mozilla.org, https://react.dev, official docs). No deep guessed paths.
 
-For learning_plan items, include the same kind of real, working URLs. All URLs must be plausible and currently reachable — never fabricate paths.`;
+QUALITY RULES:
+- youtube_videos: 2-3 max, each must be DIFFERENT and directly teach THIS skill.
+- Do NOT spam freeCodeCamp — use at most once across the whole response, only when it's the best fit.
+- No two missing skills should share the same youtube/course/practice URL.
+- steps: 3-8 concrete ordered sub-topics, not vague phrases.
+
+For learning_plan items, follow the same link rules.`;
     const user = `Student — branch: ${profile?.branch ?? "?"}, year: ${profile?.year ?? "?"}, skills: ${(profile?.current_skills ?? []).join(", ") || "none"}. Target role: ${data.target_role}.`;
 
     const { toolArguments } = await callGemini({
@@ -137,6 +141,41 @@ For learning_plan items, include the same kind of real, working URLs. All URLs m
     });
     const r = (toolArguments ?? {}) as Record<string, unknown>;
 
+    // Strip fabricated / malformed external links before persisting.
+    const { cleanYouTube, cleanRoadmap, cleanGeneric, dedupeVideos } = await import("./link-sanitize.server");
+    const usedUrls = new Set<string>();
+    const uniq = (u: string) => {
+      if (!u || usedUrls.has(u)) return "";
+      usedUrls.add(u);
+      return u;
+    };
+    let fccUsed = false;
+    const cleanCourse = (u: unknown) => {
+      const c = cleanGeneric(u);
+      if (!c) return "";
+      const isFcc = /freecodecamp\.org/i.test(c);
+      if (isFcc && fccUsed) return "";
+      if (isFcc) fccUsed = true;
+      return uniq(c);
+    };
+
+    const missing = Array.isArray(r.missing_skills) ? (r.missing_skills as Array<Record<string, unknown>>) : [];
+    const cleanedMissing = missing.map((m) => ({
+      ...m,
+      roadmap: cleanRoadmap(m.roadmap),
+      course: cleanCourse(m.course),
+      practice: uniq(cleanGeneric(m.practice)),
+      youtube_videos: dedupeVideos(m.youtube_videos).filter((v) => !usedUrls.has(v.url) && (usedUrls.add(v.url), true)),
+    }));
+
+    const plan = Array.isArray(r.learning_plan) ? (r.learning_plan as Array<Record<string, unknown>>) : [];
+    const cleanedPlan = plan.map((p) => ({
+      ...p,
+      roadmap: cleanRoadmap(p.roadmap),
+      course: cleanCourse(p.course),
+      practice: uniq(cleanGeneric(p.practice)),
+    }));
+
     const { data: row, error } = await supabase
       .from("skill_gap_results")
       .insert({
@@ -145,8 +184,8 @@ For learning_plan items, include the same kind of real, working URLs. All URLs m
         match_percentage: (r.match_percentage as number) ?? 0,
         required_skills: (r.required_skills as never) ?? ([] as never),
         matched_skills: (r.matched_skills as never) ?? ([] as never),
-        missing_skills: (r.missing_skills as never) ?? ([] as never),
-        learning_plan: (r.learning_plan as never) ?? ([] as never),
+        missing_skills: cleanedMissing as never,
+        learning_plan: cleanedPlan as never,
         estimated_weeks: (r.estimated_weeks as number) ?? 0,
       })
       .select()
