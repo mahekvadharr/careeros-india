@@ -94,7 +94,32 @@ STRICT LINK RULES (any violation = failure):
       tool_choice: { type: "function", function: { name: "emit_weekly_tasks" } },
     });
     const rawTasks = ((toolArguments as { tasks?: unknown[] })?.tasks ?? []) as Array<Record<string, unknown>>;
-    const tasks = rawTasks.map((t, i) => ({ id: `${Date.now()}-${i}`, done: false, ...t }));
+    const { cleanYouTube, cleanRoadmap, cleanGeneric } = await import("./link-sanitize.server");
+    const used = new Set<string>();
+    let fcc = false;
+    const uniq = (u: string) => (!u || used.has(u) ? "" : (used.add(u), u));
+    const cleanCourse = (u: unknown) => {
+      const c = cleanGeneric(u);
+      if (!c) return "";
+      if (/freecodecamp\.org/i.test(c)) { if (fcc) return ""; fcc = true; }
+      return uniq(c);
+    };
+    const tasks = rawTasks.map((t, i) => {
+      const res = (t.resources ?? {}) as Record<string, unknown>;
+      return {
+        id: `${Date.now()}-${i}`,
+        done: false,
+        ...t,
+        resources: {
+          ...res,
+          youtube: uniq(cleanYouTube(res.youtube)),
+          roadmap: cleanRoadmap(res.roadmap),
+          start_here: uniq(cleanGeneric(res.start_here)),
+          learn: cleanCourse(res.learn),
+          practice: uniq(cleanGeneric(res.practice)),
+        },
+      };
+    });
     const week = mondayOf();
 
     await supabase
