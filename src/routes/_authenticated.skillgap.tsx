@@ -6,6 +6,7 @@ import { analyzeSkillGap, latestSkillGap, TARGET_ROLES } from "@/lib/skillgap.fu
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Check, X, TrendingUp, Youtube, Map as MapIcon } from "lucide-react";
+import { canonicalYouTubeWatch } from "@/lib/yt";
 
 export const Route = createFileRoute("/_authenticated/skillgap")({
   head: () => ({ meta: [{ title: "Skill Gap — CareerOS" }] }),
@@ -110,7 +111,10 @@ function SkillGapPage() {
             <div className="grid gap-4">
               {((r.missing_skills as Array<{ name: string; priority: string; why: string; roadmap?: string; course?: string; practice?: string; weeks_to_job_ready?: number; steps?: string[]; youtube_videos?: Array<{ title: string; url: string }> }>) || []).map((m, idx) => {
                 const dot = m.priority === "high" ? "bg-destructive" : m.priority === "medium" ? "bg-warning" : "bg-muted-foreground";
-                const videos = (m.youtube_videos ?? []).filter((v) => v.url).slice(0, 3);
+                const videos = (m.youtube_videos ?? [])
+                  .map((v) => ({ title: v.title, url: canonicalYouTubeWatch(v.url) }))
+                  .filter((v) => v.url)
+                  .slice(0, 3);
                 const hasRoadmap = !!m.roadmap;
                 const hasCourse = !!m.course;
                 const hasPractice = !!m.practice;

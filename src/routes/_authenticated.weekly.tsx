@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Wand2, Calendar, Rocket, BookOpen, Dumbbell, Clock, Youtube, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
+import { canonicalYouTubeWatch } from "@/lib/yt";
 
 export const Route = createFileRoute("/_authenticated/weekly")({
   head: () => ({ meta: [{ title: "Weekly Plan — CareerOS" }] }),
@@ -103,11 +104,18 @@ function WeeklyPage() {
                             <MapIcon className="h-3 w-3"/> roadmap.sh
                           </a>
                         )}
-                        {t.resources.youtube && (
-                          <a href={t.resources.youtube} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2.5 py-1 transition-colors">
-                            <Youtube className="h-3 w-3"/> Watch
-                          </a>
-                        )}
+                        {(() => {
+                          const yt = canonicalYouTubeWatch(t.resources.youtube);
+                          return yt ? (
+                            <a href={yt} target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2.5 py-1 transition-colors">
+                              <Youtube className="h-3 w-3"/> Watch on YouTube
+                            </a>
+                          ) : t.resources.youtube ? (
+                            <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-muted-foreground italic">
+                              <Youtube className="h-3 w-3"/> Video currently unavailable
+                            </span>
+                          ) : null;
+                        })()}
                         {t.resources.estimated_minutes ? (
                           <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-muted-foreground">
                             <Clock className="h-3 w-3"/> ~{t.resources.estimated_minutes} min
