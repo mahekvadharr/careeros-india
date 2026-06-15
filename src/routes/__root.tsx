@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
+import { BackgroundOrbs } from "@/components/BackgroundOrbs";
 import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
@@ -97,6 +98,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthSync />
+      <BackgroundOrbs />
       <Outlet />
       <Toaster theme="dark" position="top-center" />
     </QueryClientProvider>
