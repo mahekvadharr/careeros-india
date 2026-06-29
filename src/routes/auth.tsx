@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,9 +31,17 @@ function AuthPage() {
 
   async function withGoogle() {
     setLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/dashboard" });
-    if (result.error) { toast.error(result.error.message); setLoading(false); return; }
-    if (!result.redirected) nav({ to: "/dashboard" });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+    }
+    // On success Supabase redirects the browser — no further action needed here.
   }
 
   async function submit(e: React.FormEvent) {
@@ -44,7 +51,7 @@ function AuthPage() {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { data: { full_name: name }, emailRedirectTo: window.location.origin + "/dashboard" },
+          options: { data: { full_name: name }, emailRedirectTo: `${window.location.origin}/dashboard` },
         });
         if (error) throw error;
         toast.success("Account created. Check your inbox to confirm your email.");
@@ -121,3 +128,4 @@ function AuthPage() {
     </div>
   );
 }
+
