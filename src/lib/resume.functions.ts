@@ -3,8 +3,6 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertWithinLimit, incrementUsage } from "./usage.functions";
 
-const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-
 const RESUME_TOOL = {
   type: "function",
   function: {
@@ -51,6 +49,8 @@ const RESUME_TOOL = {
   },
 };
 
+const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+
 export const analyzeResume = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
@@ -64,8 +64,8 @@ export const analyzeResume = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertWithinLimit(supabase, userId, "resume_analyses");
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -82,11 +82,11 @@ export const analyzeResume = createServerFn({ method: "POST" })
       { type: "file", file: { filename: data.file_name, file_data: data.file_data } },
     ];
 
-    const res = await fetch(GATEWAY_URL, {
+    const res = await fetch(GEMINI_BASE_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMsg },
@@ -98,7 +98,7 @@ export const analyzeResume = createServerFn({ method: "POST" })
     if (!res.ok) {
       const t = await res.text().catch(() => "");
       if (res.status === 429) throw new Error("Rate limit reached — try again in a moment.");
-      if (res.status === 402) throw new Error("AI credits exhausted. Please add credits in your Lovable workspace.");
+      if (res.status === 402) throw new Error("AI credits exhausted. Check your Google AI Studio billing.");
       throw new Error(`AI gateway error (${res.status}): ${t.slice(0, 240)}`);
     }
     const json = await res.json();
