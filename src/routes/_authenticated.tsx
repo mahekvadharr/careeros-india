@@ -43,6 +43,8 @@ function AuthenticatedLayout() {
     queryKey: ["profile"],
     queryFn: () => fetchProfile(),
     enabled: ready,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -79,3 +81,4 @@ function AuthenticatedLayout() {
     </SidebarProvider>
   );
 }
+
