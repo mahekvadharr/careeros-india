@@ -13,15 +13,9 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
-  console.log("[DEBUG] AuthenticatedLayout RENDER", new Date().toISOString());
   const nav = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    console.log("[DEBUG] AuthenticatedLayout MOUNTED", new Date().toISOString());
-    return () => console.log("[DEBUG] AuthenticatedLayout UNMOUNTED", new Date().toISOString());
-  }, []);
 
   // Track whether we've already confirmed a session, so repeated
   // onAuthStateChange firings (e.g. TOKEN_REFRESHED, duplicate SIGNED_IN)
