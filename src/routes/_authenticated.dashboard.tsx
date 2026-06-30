@@ -32,11 +32,36 @@ function Dashboard() {
   const readinessFn = useServerFn(getReadiness);
   const resumeFn = useServerFn(listResumeAnalyses);
 
-  const { data: p } = useQuery({ queryKey: ["profile"], queryFn: () => profileFn() });
-  const { data: w } = useQuery({ queryKey: ["weekly"], queryFn: () => weeklyFn() });
-  const { data: r } = useQuery({ queryKey: ["roadmap"], queryFn: () => roadmapFn() });
-  const { data: ready } = useQuery({ queryKey: ["readiness"], queryFn: () => readinessFn() });
-  const { data: resumes } = useQuery({ queryKey: ["resume-list"], queryFn: () => resumeFn() });
+  const { data: p } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => profileFn(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const { data: w } = useQuery({
+    queryKey: ["weekly"],
+    queryFn: () => weeklyFn(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const { data: r } = useQuery({
+    queryKey: ["roadmap"],
+    queryFn: () => roadmapFn(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const { data: ready } = useQuery({
+    queryKey: ["readiness"],
+    queryFn: () => readinessFn(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const { data: resumes } = useQuery({
+    queryKey: ["resume-list"],
+    queryFn: () => resumeFn(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
 
   const profile = p?.profile;
   const tasks = (w?.plan?.tasks as Array<{ id: string; title: string; done?: boolean }> | undefined) ?? [];
@@ -159,3 +184,5 @@ function DashCard({ to, icon: Icon, label, title, subtitle }: { to: string; icon
     </Link>
   );
 }
+
+      
