@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
@@ -17,26 +17,59 @@ function AuthenticatedLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [ready, setReady] = useState(false);
 
+  // Track whether we've already confirmed a session, so repeated
+  // onAuthStateChange firings (e.g. TOKEN_REFRESHED, duplicate SIGNED_IN)
+  // can't flip `ready` back and forth and cause remounts/refetch loops.
+  const hasSession = useRef(false);
+  const didInitialCheck = useRef(false);
+
   useEffect(() => {
     let mounted = true;
+
     const check = async () => {
       const { data: sess } = await supabase.auth.getSession();
+      if (!mounted) return;
+
       if (!sess.session) {
-        if (mounted) nav({ to: "/auth" });
+        if (!hasSession.current) {
+          // Only redirect if we never had a session this mount —
+          // avoids bouncing the user mid-refresh.
+          nav({ to: "/auth" });
+        }
         return;
       }
+
+      hasSession.current = true;
       const expiresAt = (sess.session.expires_at ?? 0) * 1000;
       if (expiresAt - Date.now() < 60_000) {
         await supabase.auth.refreshSession();
       }
-      if (mounted) setReady(true);
+      if (mounted && !didInitialCheck.current) {
+        didInitialCheck.current = true;
+        setReady(true);
+      }
     };
+
     check();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session && mounted) nav({ to: "/auth" });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+      // Only react to an actual sign-out. Ignore TOKEN_REFRESHED,
+      // INITIAL_SESSION, and duplicate SIGNED_IN events entirely —
+      // they don't require any state change here and were causing
+      // this layout (and everything under it) to re-render in a loop.
+      if (event === "SIGNED_OUT") {
+        hasSession.current = false;
+        didInitialCheck.current = false;
+        setReady(false);
+        nav({ to: "/auth" });
+      }
     });
+
     return () => { mounted = false; subscription.unsubscribe(); };
-  }, [nav]);
+    // Intentionally empty deps — this should run once per mount only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchProfile = useServerFn(getProfile);
   const { data, isLoading } = useQuery({
@@ -45,6 +78,8 @@ function AuthenticatedLayout() {
     enabled: ready,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   useEffect(() => {
@@ -81,4 +116,3 @@ function AuthenticatedLayout() {
     </SidebarProvider>
   );
 }
-
