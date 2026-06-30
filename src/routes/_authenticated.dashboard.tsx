@@ -37,30 +37,40 @@ function Dashboard() {
     queryFn: () => profileFn(),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   const { data: w } = useQuery({
     queryKey: ["weekly"],
     queryFn: () => weeklyFn(),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   const { data: r } = useQuery({
     queryKey: ["roadmap"],
     queryFn: () => roadmapFn(),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   const { data: ready } = useQuery({
     queryKey: ["readiness"],
     queryFn: () => readinessFn(),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   const { data: resumes } = useQuery({
     queryKey: ["resume-list"],
     queryFn: () => resumeFn(),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   const profile = p?.profile;
@@ -184,5 +194,3 @@ function DashCard({ to, icon: Icon, label, title, subtitle }: { to: string; icon
     </Link>
   );
 }
-
-      
