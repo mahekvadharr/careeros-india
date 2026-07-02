@@ -6,7 +6,7 @@ import { analyzeResume, listResumeAnalyses } from "@/lib/resume.functions";
 import { getUsage } from "@/lib/usage.functions";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Upload, FileText, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { Upload, FileText, Loader2, Sparkles, AlertCircle, TrendingUp } from "lucide-react";
 import { ProUpgradeModal } from "@/components/ProUpgradeModal";
 
 export const Route = createFileRoute("/_authenticated/resume")({
@@ -20,7 +20,7 @@ function ResumePage() {
   const listFn = useServerFn(listResumeAnalyses);
   const usageFn = useServerFn(getUsage);
 
-  const { data: list } = useQuery({ queryKey: ["resume-list"], queryFn: () => listFn() });
+  const { data: list } = useQuery({ queryKey: ["resume-list"], queryFn: () => listFn(), staleTime: 60_000, refetchOnWindowFocus: false });
   const { data: usage } = useQuery({ queryKey: ["usage"], queryFn: () => usageFn() });
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -30,10 +30,7 @@ function ResumePage() {
 
   const mut = useMutation({
     mutationFn: analyzeFn,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["resume-list"] });
-      qc.invalidateQueries({ queryKey: ["usage"] });
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["resume-list"] }); qc.invalidateQueries({ queryKey: ["usage"] }); },
   });
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -69,148 +66,175 @@ function ResumePage() {
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
       <div className="mb-8">
-        <p className="text-xs uppercase tracking-[0.3em] text-gold">Resume Analyzer</p>
-        <h1 className="font-display text-4xl gradient-text mt-2">Know why recruiters are skipping your resume.</h1>
-        <p className="text-muted-foreground mt-2">Upload your PDF resume. AI scores it across 6 dimensions and tells you exactly what to fix.</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-gold mb-2">Resume Analyzer</p>
+        <h1 className="font-display text-4xl gradient-text">Know why recruiters skip your resume.</h1>
+        <p className="text-muted-foreground mt-2 text-sm">Upload your PDF. AI scores it across 6 dimensions and tells you exactly what to fix.</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-1 glass-card rounded-3xl p-6">
-          <h3 className="font-display text-lg mb-2">Upload resume</h3>
-          <p className="text-xs text-muted-foreground mb-4">PDF only · up to 8 MB</p>
+        {/* Upload card */}
+        <div className="card rounded-2xl p-6">
+          <h3 className="font-display text-lg mb-1">Upload resume</h3>
+          <p className="text-xs text-muted-foreground mb-5">PDF only · up to 8 MB</p>
           <input ref={fileRef} type="file" accept="application/pdf" className="hidden" onChange={handleFile} />
           <Button
-            className="w-full bg-gold text-gold-foreground hover:bg-gold/90"
+            className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold h-11"
             disabled={uploading || mut.isPending}
             onClick={() => fileRef.current?.click()}
           >
             {uploading || mut.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
             {mut.isPending ? "Analyzing…" : "Choose PDF"}
           </Button>
-          {err && <p className="mt-3 text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" />{err}</p>}
-
-          <div className="mt-6 border-t border-border/40 pt-4">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">This month</span>
-              <span className="text-foreground">{isPro ? "Unlimited" : `${used}/${limit}`}</span>
+          {err && (
+            <div className="mt-3 p-3 rounded-xl bg-destructive/10 border border-destructive/20 flex items-start gap-2">
+              <AlertCircle className="h-3.5 w-3.5 text-destructive mt-0.5 shrink-0" />
+              <p className="text-xs text-destructive">{err}</p>
             </div>
-            {!isPro && <Progress value={(used / limit) * 100} className="mt-2 h-1.5" />}
+          )}
+
+          <div className="mt-5 pt-5 border-t border-border/40">
+            <div className="flex items-center justify-between text-xs mb-2">
+              <span className="text-muted-foreground">Analyses used</span>
+              <span className="font-medium">{isPro ? "Unlimited" : `${used} / ${limit}`}</span>
+            </div>
+            {!isPro && <Progress value={(used / limit) * 100} className="h-1.5" />}
             {!isPro && used >= limit && (
-              <Button size="sm" variant="outline" className="w-full mt-3" onClick={() => setShowUpgrade(true)}>
+              <Button size="sm" variant="outline" className="w-full mt-3 rounded-lg" onClick={() => setShowUpgrade(true)}>
                 <Sparkles className="h-3 w-3 mr-1" /> Unlock unlimited
               </Button>
             )}
           </div>
-        </div>
 
-        <div className="lg:col-span-2">
-          {!latest && !mut.isPending && (
-            <div className="glass-card rounded-3xl p-10 text-center">
-              <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">Upload a resume to see your scores and personalized feedback.</p>
+          {/* History */}
+          {list?.analyses && list.analyses.length > 1 && (
+            <div className="mt-5 pt-5 border-t border-border/40">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">History</p>
+              <div className="space-y-2">
+                {list.analyses.slice(1).map((a) => (
+                  <div key={a.id} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
+                    <div>
+                      <div className="text-xs font-medium truncate max-w-[140px]">{a.file_name}</div>
+                      <div className="text-[10px] text-muted-foreground">{new Date(a.created_at).toLocaleDateString()}</div>
+                    </div>
+                    <div className="font-display text-lg gold-text">{a.overall_score}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-          {latest && <AnalysisView analysis={latest} />}
+        </div>
+
+        {/* Analysis */}
+        <div className="lg:col-span-2">
+          {!latest && !mut.isPending && (
+            <div className="card rounded-2xl p-12 text-center h-full flex flex-col items-center justify-center">
+              <div className="h-14 w-14 rounded-2xl icon-glow-teal mx-auto mb-4 grid place-items-center">
+                <FileText className="h-6 w-6" />
+              </div>
+              <p className="font-display text-xl gradient-text">Upload a resume to get started</p>
+              <p className="text-sm text-muted-foreground mt-2">You'll get a score across 6 dimensions + actionable fixes.</p>
+            </div>
+          )}
+          {mut.isPending && (
+            <div className="card rounded-2xl p-12 text-center h-full flex flex-col items-center justify-center">
+              <Loader2 className="h-8 w-8 text-gold animate-spin mb-4" />
+              <p className="font-display text-xl gradient-text">Analyzing your resume…</p>
+              <p className="text-sm text-muted-foreground mt-2">Gemini is reading it carefully. Takes 15–30 seconds.</p>
+            </div>
+          )}
+          {latest && !mut.isPending && <AnalysisView analysis={latest} />}
         </div>
       </div>
-
-      {list?.analyses && list.analyses.length > 1 && (
-        <div className="mt-10">
-          <h3 className="font-display text-xl mb-3">History</h3>
-          <div className="grid md:grid-cols-2 gap-3">
-            {list.analyses.slice(1).map((a) => (
-              <div key={a.id} className="glass-card rounded-2xl p-4 flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium">{a.file_name}</div>
-                  <div className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleDateString()}</div>
-                </div>
-                <div className="text-2xl font-display gold-text">{a.overall_score}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       <ProUpgradeModal open={showUpgrade} onOpenChange={setShowUpgrade} source="resume-limit" />
     </div>
   );
 }
 
+function ScoreBadge({ value }: { value: number }) {
+  const color = value >= 70 ? "badge-green" : value >= 45 ? "badge-gold" : "badge-red";
+  return <span className={color}>{value}</span>;
+}
+
 function AnalysisView({ analysis }: { analysis: Record<string, unknown> }) {
   const f = (analysis.feedback ?? {}) as Record<string, unknown>;
-  const scores = [
-    { label: "Overall", value: analysis.overall_score as number, big: true },
-    { label: "ATS", value: analysis.ats_score as number },
-    { label: "Keywords", value: analysis.keyword_score as number },
-    { label: "Projects", value: analysis.project_score as number },
-    { label: "Experience", value: analysis.experience_score as number },
-    { label: "Formatting", value: analysis.formatting_score as number },
+  const subScores = [
+    { label: "ATS",        value: analysis.ats_score as number,        colorClass: "icon-glow-teal" },
+    { label: "Keywords",   value: analysis.keyword_score as number,     colorClass: "icon-glow-indigo" },
+    { label: "Projects",   value: analysis.project_score as number,     colorClass: "icon-glow-emerald" },
+    { label: "Experience", value: analysis.experience_score as number,  colorClass: "icon-glow-gold" },
+    { label: "Formatting", value: analysis.formatting_score as number,  colorClass: "icon-glow-rose" },
   ];
 
   return (
-    <div className="space-y-5">
-      <div className="glass-card rounded-3xl p-7">
-        <div className="flex items-baseline justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Overall</p>
-            <div className="font-display text-7xl gold-text mt-1">{analysis.overall_score as number}</div>
-            <div className="text-xs text-muted-foreground">/ 100</div>
-          </div>
-          <div className="text-right max-w-xs">
-            <p className="text-sm text-foreground/80">{f.summary as string}</p>
-          </div>
+    <div className="space-y-4">
+      {/* Overall score */}
+      <div className="card rounded-2xl p-6 flex items-start gap-6">
+        <div className="text-center shrink-0">
+          <div className="font-display text-7xl gold-text leading-none">{analysis.overall_score as number}</div>
+          <div className="text-xs text-muted-foreground mt-1">/100</div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
-          {scores.slice(1).map((s) => (
-            <div key={s.label} className="rounded-2xl bg-secondary/40 p-3">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{s.label}</div>
-              <div className="font-display text-2xl mt-1">{s.value}</div>
-              <Progress value={s.value} className="mt-2 h-1" />
-            </div>
-          ))}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="h-4 w-4 text-gold" />
+            <span className="text-sm font-semibold">Overall Score</span>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">{f.summary as string}</p>
+          <div className="mt-3 grid grid-cols-5 gap-2">
+            {subScores.map((s) => (
+              <div key={s.label} className={`rounded-xl p-3 text-center ${s.colorClass}`}>
+                <div className="font-display text-xl">{s.value}</div>
+                <div className="text-[10px] mt-1 opacity-80">{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Top fixes */}
+      {(f.top_fixes as Array<{ title: string; detail: string; priority: string }>)?.length > 0 && (
+        <div className="card rounded-2xl p-5">
+          <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-4">Top fixes</div>
+          <div className="space-y-3">
+            {(f.top_fixes as Array<{ title: string; detail: string; priority: string }>).map((x, i) => (
+              <div key={i} className="flex gap-3">
+                <span className={`text-[10px] uppercase font-bold tracking-wider shrink-0 mt-1 ${x.priority === "high" ? "text-red-400" : x.priority === "medium" ? "text-amber-400" : "text-muted-foreground"}`}>
+                  {x.priority}
+                </span>
+                <div>
+                  <div className="text-sm font-medium">{x.title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{x.detail}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-4">
-        <FeedbackList title="Top fixes" items={(f.top_fixes as Array<{ title: string; detail: string; priority: string }>) || []} renderItem={(x) => (
-          <div>
-            <div className="flex items-center gap-2">
-              <span className={`text-[10px] uppercase tracking-widest ${x.priority === "high" ? "text-destructive" : x.priority === "medium" ? "text-warning" : "text-muted-foreground"}`}>{x.priority}</span>
-              <span className="text-sm font-medium">{x.title}</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">{x.detail}</p>
+        <ChipCard title="Missing keywords" items={(f.missing_keywords as string[]) || []} colorClass="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" />
+        <ChipCard title="Missing skills"   items={(f.missing_skills   as string[]) || []} colorClass="bg-teal-500/10 text-teal-400 border border-teal-500/20" />
+        <ChipCard title="Weak action verbs" items={(f.weak_action_verbs as string[]) || []} colorClass="bg-rose-500/10 text-rose-400 border border-rose-500/20" />
+        {(f.length_recommendation as string) && (
+          <div className="card rounded-xl p-4">
+            <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-2">Length</div>
+            <p className="text-sm">{f.length_recommendation as string}</p>
           </div>
-        )} />
-        <FeedbackChips title="Missing keywords" items={(f.missing_keywords as string[]) || []} />
-        <FeedbackChips title="Weak action verbs" items={(f.weak_action_verbs as string[]) || []} />
-        <FeedbackChips title="Missing skills" items={(f.missing_skills as string[]) || []} />
-        <FeedbackList title="Quantify these" items={((f.missing_quantified_achievements as string[]) || []).map((s) => ({ s }))} renderItem={(x) => <p className="text-sm">{x.s}</p>} />
-        <div className="glass-card rounded-2xl p-5">
-          <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Length</div>
-          <p className="text-sm mt-2">{(f.length_recommendation as string) || "—"}</p>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
-function FeedbackList<T>({ title, items, renderItem }: { title: string; items: T[]; renderItem: (x: T) => React.ReactNode }) {
+function ChipCard({ title, items, colorClass }: { title: string; items: string[]; colorClass: string }) {
   if (!items.length) return null;
   return (
-    <div className="glass-card rounded-2xl p-5">
-      <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">{title}</div>
-      <div className="space-y-3">{items.map((x, i) => <div key={i}>{renderItem(x)}</div>)}</div>
-    </div>
-  );
-}
-
-function FeedbackChips({ title, items }: { title: string; items: string[] }) {
-  if (!items.length) return null;
-  return (
-    <div className="glass-card rounded-2xl p-5">
+    <div className="card rounded-xl p-4">
       <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">{title}</div>
       <div className="flex flex-wrap gap-1.5">
-        {items.map((t) => <span key={t} className="text-xs px-2 py-1 rounded-full bg-secondary/60">{t}</span>)}
+        {items.map((t) => (
+          <span key={t} className={`text-xs px-2.5 py-1 rounded-lg font-medium ${colorClass}`}>{t}</span>
+        ))}
       </div>
     </div>
   );
