@@ -4,18 +4,27 @@ import { useServerFn } from "@tanstack/react-start";
 import { computeReadiness, getReadiness } from "@/lib/readiness.functions";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, RefreshCcw, ArrowRight } from "lucide-react";
+import { Loader2, RefreshCcw, ArrowRight, Gauge } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/readiness")({
   head: () => ({ meta: [{ title: "Internship Readiness — CareerOS" }] }),
   component: ReadinessPage,
 });
 
+const PILLARS = [
+  { key: "resume_score",         label: "Resume",         colorClass: "icon-glow-rose" },
+  { key: "skills_score",         label: "Skills",         colorClass: "icon-glow-teal" },
+  { key: "projects_score",       label: "Projects",       colorClass: "icon-glow-indigo" },
+  { key: "certifications_score", label: "Certifications", colorClass: "icon-glow-amber" },
+  { key: "linkedin_score",       label: "LinkedIn",       colorClass: "icon-glow-emerald" },
+  { key: "roadmap_score",        label: "Roadmap",        colorClass: "icon-glow-gold" },
+];
+
 function ReadinessPage() {
   const qc = useQueryClient();
   const getFn = useServerFn(getReadiness);
   const computeFn = useServerFn(computeReadiness);
-  const { data, isLoading } = useQuery({ queryKey: ["readiness"], queryFn: () => getFn() });
+  const { data, isLoading } = useQuery({ queryKey: ["readiness"], queryFn: () => getFn(), staleTime: 60_000, refetchOnWindowFocus: false });
   const mut = useMutation({
     mutationFn: computeFn,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["readiness"] }),
@@ -24,83 +33,105 @@ function ReadinessPage() {
   const r = (mut.data?.readiness ?? data?.readiness) as Record<string, unknown> | undefined;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-      <div className="flex items-end justify-between mb-8">
+    <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-gold">Internship Readiness</p>
-          <h1 className="font-display text-4xl gradient-text mt-2">How ready are you, really?</h1>
-          <p className="text-muted-foreground mt-2">A live score across resume, skills, projects, certs, LinkedIn and roadmap.</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-gold mb-2">Internship Readiness</p>
+          <h1 className="font-display text-4xl gradient-text">How ready are you, really?</h1>
+          <p className="text-muted-foreground mt-2 text-sm">A live score across resume, skills, projects, certs, LinkedIn and roadmap.</p>
         </div>
-        <Button variant="outline" disabled={mut.isPending} onClick={() => mut.mutate(undefined)}>
+        <Button variant="outline" disabled={mut.isPending} onClick={() => mut.mutate(undefined)} className="shrink-0 rounded-full h-10 px-5">
           {mut.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCcw className="h-4 w-4 mr-2" />}
           {r ? "Recompute" : "Compute now"}
         </Button>
       </div>
 
-      {isLoading && <div className="glass-card rounded-3xl p-10 text-center"><Loader2 className="h-5 w-5 animate-spin mx-auto text-gold" /></div>}
+      {isLoading && (
+        <div className="card rounded-2xl p-10 text-center">
+          <Loader2 className="h-5 w-5 animate-spin mx-auto text-gold" />
+        </div>
+      )}
 
       {!r && !isLoading && (
-        <div className="glass-card rounded-3xl p-10 text-center text-muted-foreground">
-          Click <span className="text-foreground">Compute now</span> to see your readiness score.
+        <div className="card rounded-2xl p-12 text-center">
+          <div className="h-14 w-14 rounded-2xl icon-glow-gold mx-auto mb-4 grid place-items-center">
+            <Gauge className="h-6 w-6" />
+          </div>
+          <h2 className="font-display text-2xl gradient-text">Ready to check your score?</h2>
+          <p className="text-muted-foreground mt-2 text-sm">Click <span className="text-foreground font-medium">Compute now</span> to see your readiness score across 6 dimensions.</p>
         </div>
       )}
 
       {r && (
         <div className="space-y-5">
-          <div className="glass-card rounded-3xl p-7 relative overflow-hidden">
-            <div className="absolute -top-20 -right-20 h-48 w-48 bg-gold/15 blur-3xl rounded-full" />
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Total readiness</p>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="font-display text-7xl gold-text">{r.total_score as number}</span>
-              <span className="text-muted-foreground">/100</span>
+          {/* Big score */}
+          <div className="card rounded-2xl p-7 flex items-center gap-8 relative overflow-hidden">
+            <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
+            <div className="text-center shrink-0">
+              <div className="font-display text-8xl gold-text leading-none">{r.total_score as number}</div>
+              <div className="text-xs text-muted-foreground mt-1">/100</div>
             </div>
-            <Progress value={r.total_score as number} className="mt-6 h-1.5" />
-            <p className="mt-3 text-sm text-muted-foreground">Estimated {r.estimated_weeks as number} weeks to reach 90+.</p>
+            <div className="flex-1">
+              <h3 className="font-display text-xl gradient-text mb-3">Total Readiness</h3>
+              <Progress value={r.total_score as number} className="h-2 mb-3" />
+              <p className="text-sm text-muted-foreground">
+                Estimated <span className="text-foreground font-semibold">{r.estimated_weeks as number} weeks</span> to reach 90+ readiness.
+              </p>
+            </div>
           </div>
 
+          {/* 6 pillars */}
           <div className="grid md:grid-cols-3 gap-3">
-            <Pillar label="Resume" value={r.resume_score as number} />
-            <Pillar label="Skills" value={r.skills_score as number} />
-            <Pillar label="Projects" value={r.projects_score as number} />
-            <Pillar label="Certifications" value={r.certifications_score as number} />
-            <Pillar label="LinkedIn" value={r.linkedin_score as number} />
-            <Pillar label="Roadmap" value={r.roadmap_score as number} />
+            {PILLARS.map((p) => {
+              const value = r[p.key] as number;
+              return (
+                <div key={p.key} className="card rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`h-8 w-8 rounded-lg grid place-items-center ${p.colorClass}`}>
+                      <span className="text-xs font-bold">{p.label[0]}</span>
+                    </div>
+                    <span className="font-display text-2xl">{value}</span>
+                  </div>
+                  <div className="text-xs font-medium mb-2">{p.label}</div>
+                  <Progress value={value} className="h-1.5" />
+                </div>
+              );
+            })}
           </div>
 
-          <div className="glass-card rounded-2xl p-5">
-            <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">Improvement plan</div>
-            <ol className="space-y-3">
+          {/* Improvement plan */}
+          <div className="card rounded-2xl p-6">
+            <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-4">Improvement plan</div>
+            <ol className="space-y-4">
               {((r.improvement_plan as Array<{ title: string; detail: string }>) || []).map((p, i) => (
-                <li key={i} className="flex gap-3">
-                  <span className="font-display text-xl text-gold/80 leading-none">{i + 1}</span>
+                <li key={i} className="flex gap-4">
+                  <div className="h-7 w-7 rounded-lg icon-glow-gold grid place-items-center shrink-0 font-display text-sm">{i + 1}</div>
                   <div>
-                    <div className="text-sm font-medium">{p.title}</div>
-                    <div className="text-xs text-muted-foreground">{p.detail}</div>
+                    <div className="text-sm font-semibold">{p.title}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{p.detail}</div>
                   </div>
                 </li>
               ))}
-              {((r.improvement_plan as unknown[])?.length ?? 0) === 0 && <li className="text-sm text-success">Nothing critical missing — keep shipping.</li>}
+              {((r.improvement_plan as unknown[])?.length ?? 0) === 0 && (
+                <li className="text-sm text-green-400 flex items-center gap-2">
+                  ✓ Nothing critical missing — keep shipping.
+                </li>
+              )}
             </ol>
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link to="/resume" className="text-xs px-3 py-1.5 rounded-full bg-secondary/60 hover:bg-secondary inline-flex items-center gap-1">Resume Analyzer <ArrowRight className="h-3 w-3" /></Link>
-              <Link to="/skillgap" className="text-xs px-3 py-1.5 rounded-full bg-secondary/60 hover:bg-secondary inline-flex items-center gap-1">Skill Gap <ArrowRight className="h-3 w-3" /></Link>
-              <Link to="/roadmap" className="text-xs px-3 py-1.5 rounded-full bg-secondary/60 hover:bg-secondary inline-flex items-center gap-1">Career GPS <ArrowRight className="h-3 w-3" /></Link>
+              {[
+                { to: "/resume",   label: "Resume Analyzer" },
+                { to: "/skillgap", label: "Skill Gap" },
+                { to: "/roadmap",  label: "Career GPS" },
+              ].map(({ to, label }) => (
+                <Link key={to} to={to} className="text-xs px-3 py-1.5 rounded-full card hover:border-border inline-flex items-center gap-1 transition-colors">
+                  {label} <ArrowRight className="h-3 w-3" />
+                </Link>
+              ))}
             </div>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function Pillar({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="glass-card rounded-2xl p-4">
-      <div className="flex items-center justify-between">
-        <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">{label}</span>
-        <span className="font-display text-xl">{value}</span>
-      </div>
-      <Progress value={value} className="mt-2 h-1" />
     </div>
   );
 }
