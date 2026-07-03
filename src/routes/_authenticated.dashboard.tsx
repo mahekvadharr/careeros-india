@@ -11,19 +11,20 @@ import { Progress } from "@/components/ui/progress";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { ArrowRight, Calendar, Map, MessageCircle, Sparkles, Target, FileText, Gauge, Flame, Zap, Compass, Brain, Trophy } from "lucide-react";
 
-
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — CareerOS" }] }),
   component: Dashboard,
 });
 
 const GREETINGS = [
-  "✨ Ready to level up today?",
-  "🚀 One step closer to your dream career.",
-  "🔥 Your streak is looking good.",
-  "🎯 Small wins today. Big career tomorrow.",
-  "🧠 Future you is watching. Make them proud.",
+  "Ready to level up today?",
+  "One step closer to your dream career.",
+  "Small wins today. Big career tomorrow.",
+  "Future you is watching. Make them proud.",
+  "Consistency beats intensity. Show up.",
 ];
+
+const qOpts = { staleTime: 60_000, refetchOnWindowFocus: false, refetchOnMount: false, refetchOnReconnect: false };
 
 function Dashboard() {
   const profileFn = useServerFn(getProfile);
@@ -32,46 +33,11 @@ function Dashboard() {
   const readinessFn = useServerFn(getReadiness);
   const resumeFn = useServerFn(listResumeAnalyses);
 
-  const { data: p } = useQuery({
-    queryKey: ["profile"],
-    queryFn: () => profileFn(),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-  const { data: w } = useQuery({
-    queryKey: ["weekly"],
-    queryFn: () => weeklyFn(),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-  const { data: r } = useQuery({
-    queryKey: ["roadmap"],
-    queryFn: () => roadmapFn(),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-  const { data: ready } = useQuery({
-    queryKey: ["readiness"],
-    queryFn: () => readinessFn(),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-  const { data: resumes } = useQuery({
-    queryKey: ["resume-list"],
-    queryFn: () => resumeFn(),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
+  const { data: p } = useQuery({ queryKey: ["profile"],     queryFn: () => profileFn(),   ...qOpts });
+  const { data: w } = useQuery({ queryKey: ["weekly"],      queryFn: () => weeklyFn(),    ...qOpts });
+  const { data: r } = useQuery({ queryKey: ["roadmap"],     queryFn: () => roadmapFn(),   ...qOpts });
+  const { data: ready } = useQuery({ queryKey: ["readiness"], queryFn: () => readinessFn(), ...qOpts });
+  const { data: resumes } = useQuery({ queryKey: ["resume-list"], queryFn: () => resumeFn(), ...qOpts });
 
   const profile = p?.profile;
   const tasks = (w?.plan?.tasks as Array<{ id: string; title: string; done?: boolean }> | undefined) ?? [];
@@ -80,117 +46,99 @@ function Dashboard() {
   const readinessScore = ready?.readiness?.total_score ?? null;
   const latestResume = resumes?.analyses?.[0];
   const nextTask = tasks.find((t) => !t.done);
-
   const greeting = useMemo(() => GREETINGS[Math.floor(Math.random() * GREETINGS.length)], []);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-      <div className="mb-10 reveal" style={{ animationDelay: "20ms" }}>
-        <p className="text-xs uppercase tracking-[0.3em] text-gold mb-2">Home</p>
-        <h1 className="font-display text-4xl gradient-text">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      {/* Welcome */}
+      <div className="mb-6 sm:mb-8">
+        <p className="text-xs uppercase tracking-[0.3em] text-gold mb-1.5">Home</p>
+        <h1 className="font-display text-2xl sm:text-4xl gradient-text leading-tight">
           {profile?.full_name ? `Hey, ${profile.full_name.split(" ")[0]}.` : "Welcome back."}
         </h1>
-        <p className="mt-2 text-muted-foreground">{greeting}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{greeting}</p>
       </div>
 
-      {/* DOMINANT — Today's Mission */}
-      <Link
-        to="/weekly"
-        className="block glass-card hover-breathe rounded-[2rem] p-8 md:p-10 mb-8 relative overflow-hidden border-gold/25 reveal"
-        style={{ animationDelay: "60ms" }}
-      >
-        <div className="absolute -top-24 -right-16 h-72 w-72 bg-gold/20 blur-3xl rounded-full" />
-        <div className="absolute inset-0 grain" />
-        <div className="relative flex items-start gap-5">
-          <div className="h-14 w-14 rounded-2xl bg-gold/15 grid place-items-center shrink-0 glow-active">
-            <Target className="h-7 w-7 text-gold" />
+      {/* Today's mission */}
+      <Link to="/weekly" className="block card card-glow card-glow-gold hover-lift rounded-2xl p-5 sm:p-7 mb-5 relative overflow-hidden border-primary/15">
+        <div className="absolute -top-16 -right-12 h-40 w-40 bg-primary/10 blur-3xl pointer-events-none" />
+        <div className="relative flex items-start gap-4">
+          <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl icon-glow-gold grid place-items-center shrink-0">
+            <Target className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.3em] text-gold">Today's Mission</p>
-            <h2 className="font-display text-3xl md:text-4xl mt-2 leading-tight">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-gold mb-1">Today's Mission</p>
+            <h2 className="font-display text-lg sm:text-2xl leading-tight line-clamp-2">
               {nextTask?.title ?? (tasks.length ? "All tasks done — plan next week." : "Generate this week's plan.")}
             </h2>
-            <div className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/70">
-                <Calendar className="h-3.5 w-3.5 text-gold" /> {completed}/{tasks.length || "—"} this week
+            <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar className="h-3 w-3 text-gold" />
+                {completed}/{tasks.length || "—"} this week
               </span>
-              <span className="inline-flex items-center gap-1 text-gold">
-                Open <ArrowRight className="h-4 w-4" />
+              <span className="inline-flex items-center gap-1 text-gold font-medium">
+                Open <ArrowRight className="h-3 w-3" />
               </span>
             </div>
           </div>
         </div>
       </Link>
 
-      {/* MEDIUM — Progress trio */}
-      <div className="grid lg:grid-cols-3 gap-5 mb-12">
-        <div className="glass-card hover-breathe rounded-3xl p-7 lg:col-span-2 relative overflow-hidden reveal" style={{ animationDelay: "120ms" }}>
-          <div className="absolute -top-20 -right-20 h-48 w-48 bg-primary/15 blur-3xl rounded-full" />
-          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Career Score</p>
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-display text-7xl gold-text"><AnimatedNumber value={score} /></span>
-            <span className="text-muted-foreground">/100</span>
-          </div>
-          <Progress value={score} className="mt-6 h-1.5" />
-          <p className="mt-4 text-sm text-muted-foreground">{score < 40 ? "You're early — every week compounds." : score < 70 ? "Strong base. Keep shipping." : "Excellent. You're placement-ready."}</p>
-        </div>
-        <div className="grid gap-5 reveal" style={{ animationDelay: "180ms" }}>
-          <div className="glass-card hover-breathe rounded-3xl p-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-gold/15 grid place-items-center"><Zap className="h-6 w-6 text-gold"/></div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Total XP</p>
-              <div className="font-display text-3xl gold-text"><AnimatedNumber value={profile?.xp ?? 0} /></div>
-            </div>
-          </div>
-          <div className="glass-card hover-breathe rounded-3xl p-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-orange-500/15 grid place-items-center"><Flame className="h-6 w-6 text-orange-400"/></div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Streak</p>
-              <div className="font-display text-3xl"><AnimatedNumber value={profile?.streak_days ?? 0} /> <span className="text-base text-muted-foreground">days</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* SMALL — Everything else */}
-      <div className="mb-4 reveal" style={{ animationDelay: "240ms" }}>
-        <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Your toolkit</p>
-      </div>
-      <div className="grid lg:grid-cols-3 gap-5">
+      {/* Stats row */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
         {[
-          { to: "/readiness", icon: Gauge, label: "Readiness", title: readinessScore !== null ? `${readinessScore}/100` : "Compute now", subtitle: readinessScore !== null ? `${ready?.readiness?.estimated_weeks ?? 0} weeks to 90+` : "Across resume, skills, projects" },
-          { to: "/resume", icon: FileText, label: "Resume", title: latestResume ? `Score ${latestResume.overall_score}` : "Upload your resume", subtitle: latestResume ? `ATS ${latestResume.ats_score} · Keywords ${latestResume.keyword_score}` : "AI scores 6 dimensions" },
-          { to: "/skillgap", icon: Compass, label: "Skill Gap", title: "Pick a target role", subtitle: "See exactly what's missing" },
-          { to: "/roadmap", icon: Map, label: "Career GPS", title: r?.roadmap ? `${(r.roadmap.semesters as unknown[])?.length ?? 0} semesters` : "Build your roadmap", subtitle: "Tailored to your goal" },
-          { to: "/mentor", icon: Brain, label: "AI Mentor", title: "Ask anything", subtitle: "Career, placements, doubts" },
-          { to: "/weekly", icon: Trophy, label: "This Week", title: tasks.length ? `${completed}/${tasks.length} tasks done` : "Generate your week", subtitle: tasks.length ? `${tasks.length - completed} remaining` : "AI builds it in 5s" },
-        ].map((c, i) => (
-          <div key={c.to} className="reveal" style={{ animationDelay: `${280 + i * 60}ms` }}>
-            <DashCard {...c} />
+          { label: "Career Score", value: score, suffix: "/100", colorClass: "icon-glow-gold" },
+          { label: "Total XP", value: profile?.xp ?? 0, suffix: "xp", colorClass: "icon-glow-amber", icon: Zap },
+          { label: "Streak", value: profile?.streak_days ?? 0, suffix: "d", colorClass: "icon-glow-rose", icon: Flame },
+        ].map((s) => (
+          <div key={s.label} className="card rounded-2xl p-3 sm:p-5 text-center">
+            <div className="font-display text-xl sm:text-3xl gold-text leading-none">
+              <AnimatedNumber value={s.value} />
+              <span className="text-xs sm:text-sm text-muted-foreground ml-0.5">{s.suffix}</span>
+            </div>
+            <div className="text-[9px] sm:text-xs text-muted-foreground mt-1">{s.label}</div>
+            <Progress value={s.label === "Career Score" ? s.value : undefined} className="h-1 mt-2 hidden sm:block" />
           </div>
         ))}
       </div>
 
-      <div className="mt-12 glass-card hover-breathe rounded-3xl p-7 flex items-center gap-4 reveal" style={{ animationDelay: "700ms" }}>
-        <div className="h-10 w-10 rounded-full bg-primary/15 grid place-items-center"><Sparkles className="h-5 w-5 text-gold"/></div>
-        <div className="flex-1">
-          <h3 className="font-display text-lg">Tip of the day</h3>
-          <p className="text-sm text-muted-foreground">Apply to 5 internships before Friday. Volume + targeting beats perfection.</p>
+      {/* Feature grid */}
+      <div className="mb-3">
+        <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Your toolkit</p>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {[
+          { to: "/readiness", icon: Gauge,         label: "Readiness",     title: readinessScore !== null ? `${readinessScore}/100` : "Compute now",      subtitle: readinessScore !== null ? `${ready?.readiness?.estimated_weeks ?? 0}w to 90+` : "6 dimensions",       glow: "card-glow-gold" },
+          { to: "/resume",    icon: FileText,       label: "Resume",        title: latestResume ? `Score ${latestResume.overall_score}` : "Upload resume",   subtitle: latestResume ? `ATS ${latestResume.ats_score}` : "AI-powered scoring",                              glow: "card-glow-teal" },
+          { to: "/skillgap",  icon: Compass,        label: "Skill Gap",     title: "Analyze gap",                                                            subtitle: "vs your target role",                                                                               glow: "card-glow-indigo" },
+          { to: "/roadmap",   icon: Map,            label: "Career GPS",    title: r?.roadmap ? `${(r.roadmap.semesters as unknown[])?.length ?? 0} semesters` : "Build roadmap", subtitle: "Semester-wise plan",                                                          glow: "card-glow-emerald" },
+          { to: "/mentor",    icon: Brain,          label: "AI Mentor",     title: "Ask anything",                                                           subtitle: "Career, placements, skills",                                                                        glow: "card-glow-rose" },
+          { to: "/weekly",    icon: Trophy,         label: "This Week",     title: tasks.length ? `${completed}/${tasks.length} done` : "Generate plan",     subtitle: tasks.length ? `${tasks.length - completed} remaining` : "5-second plan",                           glow: "card-glow-amber" },
+        ].map((c) => (
+          <Link key={c.to} to={c.to} className={`card-glow ${c.glow} p-4 sm:p-5 block group`}>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{c.label}</p>
+              <ArrowRight className="h-3 w-3 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </div>
+            <div className="flex items-start gap-2.5">
+              <c.icon className="h-4 w-4 sm:h-5 sm:w-5 text-gold shrink-0 mt-0.5" />
+              <div className="min-w-0">
+                <h3 className="font-semibold text-sm sm:text-base leading-tight line-clamp-1">{c.title}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{c.subtitle}</p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Quick tip */}
+      <div className="card rounded-2xl p-4 sm:p-5 mt-5 flex items-start gap-3">
+        <Sparkles className="h-4 w-4 text-gold shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-medium">Tip of the day</p>
+          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">Apply to 5 internships before Friday. Volume + targeting beats perfection every time.</p>
         </div>
       </div>
     </div>
-  );
-}
-
-function DashCard({ to, icon: Icon, label, title, subtitle }: { to: string; icon: React.ElementType; label: string; title: string; subtitle: string }) {
-  return (
-    <Link to={to} className="glass-card hover-breathe rounded-3xl p-6 block group h-full">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-muted-foreground"><Icon className="h-3.5 w-3.5 text-gold"/>{label}</div>
-        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-0.5 transition"/>
-      </div>
-      <h3 className="font-display text-xl mt-4">{title}</h3>
-      <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
-    </Link>
   );
 }
