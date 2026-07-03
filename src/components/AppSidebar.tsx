@@ -1,7 +1,10 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Home, Compass, Calendar, FileText, Briefcase, MessageCircle, Mic, Wrench, Target, Settings, LogOut, Gauge, Sparkles, ChevronRight } from "lucide-react";
+import { Home, Compass, Calendar, FileText, Briefcase, MessageCircle, Mic, Wrench, Target, Settings, LogOut, Gauge, Sparkles, ChevronRight, User } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getProfile } from "@/lib/profile.functions";
 
 const MAIN_ITEMS = [
   { title: "Dashboard",       url: "/dashboard", icon: Home },
@@ -11,6 +14,7 @@ const MAIN_ITEMS = [
   { title: "Skill Gap",       url: "/skillgap",  icon: Target },
   { title: "Readiness",       url: "/readiness", icon: Gauge },
   { title: "AI Mentor",       url: "/mentor",    icon: MessageCircle },
+  { title: "Profile",          url: "/profile",   icon: User },
 ];
 
 const SOON_ITEMS = [
@@ -24,6 +28,15 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
+  const profileFn = useServerFn(getProfile);
+  const { data: profileData } = useQuery({
+    queryKey: ["profile"],
+    queryFn: () => profileFn(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const profile = profileData?.profile;
+  const initials = (profile?.full_name ?? "U").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -98,9 +111,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border/60 px-2 py-3 space-y-0.5">
+      <SidebarFooter className="border-t border-sidebar-border/60 px-2 py-3">
+        {/* Upgrade CTA */}
         {!collapsed && (
-          <div className="mx-1 mb-2 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 p-3">
+          <div className="mx-1 mb-3 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/20 p-3">
             <div className="flex items-center gap-2 mb-1">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
               <span className="text-xs font-semibold text-primary">Upgrade to Pro</span>
@@ -111,7 +125,19 @@ export function AppSidebar() {
             </Link>
           </div>
         )}
-        <SidebarMenu>
+
+        <SidebarMenu className="space-y-0.5">
+          {/* Profile link */}
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/profile"}>
+              <Link to="/profile" className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${pathname === "/profile" ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}>
+                <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-primary/30 to-indigo-500/20 border border-primary/20 grid place-items-center shrink-0">
+                  <span className="text-[9px] font-bold text-primary">{initials}</span>
+                </div>
+                {!collapsed && <span className="flex-1 font-medium">{profile?.full_name?.split(" ")[0] ?? "Profile"}</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link to="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
