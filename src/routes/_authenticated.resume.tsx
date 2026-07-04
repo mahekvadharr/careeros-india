@@ -71,7 +71,7 @@ function ResumePage() {
         <p className="text-muted-foreground mt-2 text-sm">Upload your PDF. AI scores it across 6 dimensions and tells you exactly what to fix.</p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Upload card */}
         <div className="card rounded-2xl p-6">
           <h3 className="font-display text-lg mb-1">Upload resume</h3>
@@ -169,9 +169,9 @@ function AnalysisView({ analysis }: { analysis: Record<string, unknown> }) {
   return (
     <div className="space-y-4">
       {/* Overall score */}
-      <div className="card rounded-2xl p-6 flex items-start gap-6">
+      <div className="card rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
         <div className="text-center shrink-0">
-          <div className="font-display text-7xl gold-text leading-none">{analysis.overall_score as number}</div>
+          <div className="font-display text-5xl sm:text-7xl gold-text leading-none">{analysis.overall_score as number}</div>
           <div className="text-xs text-muted-foreground mt-1">/100</div>
         </div>
         <div className="flex-1 min-w-0">
@@ -180,11 +180,11 @@ function AnalysisView({ analysis }: { analysis: Record<string, unknown> }) {
             <span className="text-sm font-semibold">Overall Score</span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">{f.summary as string}</p>
-          <div className="mt-3 grid grid-cols-5 gap-2">
+          <div className="mt-3 grid grid-cols-3 sm:grid-cols-5 gap-2">
             {subScores.map((s) => (
-              <div key={s.label} className={`rounded-xl p-3 text-center ${s.colorClass}`}>
-                <div className="font-display text-xl">{s.value}</div>
-                <div className="text-[10px] mt-1 opacity-80">{s.label}</div>
+              <div key={s.label} className={`rounded-xl p-2 sm:p-3 text-center ${s.colorClass}`}>
+                <div className="font-display text-base sm:text-xl">{s.value}</div>
+                <div className="text-[9px] sm:text-[10px] mt-0.5 sm:mt-1 opacity-80">{s.label}</div>
               </div>
             ))}
           </div>
@@ -211,7 +211,7 @@ function AnalysisView({ analysis }: { analysis: Record<string, unknown> }) {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <ChipCard title="Missing keywords" items={(f.missing_keywords as string[]) || []} colorClass="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" />
         <ChipCard title="Missing skills"   items={(f.missing_skills   as string[]) || []} colorClass="bg-teal-500/10 text-teal-400 border border-teal-500/20" />
         <ChipCard title="Weak action verbs" items={(f.weak_action_verbs as string[]) || []} colorClass="bg-rose-500/10 text-rose-400 border border-rose-500/20" />
