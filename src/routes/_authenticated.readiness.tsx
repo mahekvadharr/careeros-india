@@ -65,10 +65,10 @@ function ReadinessPage() {
       {r && (
         <div className="space-y-5">
           {/* Big score */}
-          <div className="card rounded-2xl p-7 flex items-center gap-8 relative overflow-hidden">
+          <div className="card rounded-2xl p-5 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8 relative overflow-hidden">
             <div className="absolute -top-20 -right-20 h-48 w-48 rounded-full bg-primary/8 blur-3xl pointer-events-none" />
             <div className="text-center shrink-0">
-              <div className="font-display text-8xl gold-text leading-none">{r.total_score as number}</div>
+              <div className="font-display text-6xl sm:text-8xl gold-text leading-none">{r.total_score as number}</div>
               <div className="text-xs text-muted-foreground mt-1">/100</div>
             </div>
             <div className="flex-1">
@@ -81,7 +81,7 @@ function ReadinessPage() {
           </div>
 
           {/* 6 pillars */}
-          <div className="grid md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PILLARS.map((p) => {
               const value = r[p.key] as number;
               return (
