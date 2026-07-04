@@ -54,7 +54,7 @@ function WeeklyPage() {
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 sm:mb-8 gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-gold mb-2">Weekly Mission</p>
           <h1 className="font-display text-4xl gradient-text">This week, here's the move.</h1>
@@ -73,7 +73,7 @@ function WeeklyPage() {
 
       {/* Progress bar */}
       {tasks.length > 0 && (
-        <div className="card rounded-2xl p-5 mb-6 flex items-center gap-6">
+        <div className="card rounded-2xl p-4 sm:p-5 mb-5 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
           <div className="flex-1">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium">Week progress</span>
@@ -112,9 +112,9 @@ function WeeklyPage() {
                 className="mt-0.5 shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-3 mb-1">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-3 mb-1">
                   <h3 className={`font-semibold text-sm leading-snug ${t.done ? "line-through text-muted-foreground" : ""}`}>{t.title}</h3>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap">
                     <span className="badge-gold text-[10px]">{t.category}</span>
                     <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" />{t.hours}h</span>
                   </div>
