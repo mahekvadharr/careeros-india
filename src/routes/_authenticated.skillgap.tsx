@@ -72,9 +72,9 @@ function SkillGapPage() {
       {r && !mut.isPending && (
         <div className="space-y-5">
           {/* Score header */}
-          <div className="card rounded-2xl p-7 flex items-center gap-8">
+          <div className="card rounded-2xl p-5 sm:p-7 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
             <div className="text-center shrink-0">
-              <div className="font-display text-7xl gold-text leading-none">{r.match_percentage as number}%</div>
+              <div className="font-display text-5xl sm:text-7xl gold-text leading-none">{r.match_percentage as number}%</div>
               <div className="text-xs text-muted-foreground mt-1">match</div>
             </div>
             <div className="flex-1">
@@ -86,7 +86,7 @@ function SkillGapPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Required skills */}
             <div className="card rounded-2xl p-5">
               <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-4">Required skills</div>
@@ -132,7 +132,7 @@ function SkillGapPage() {
           {/* Missing skills — detailed cards */}
           <div className="card rounded-2xl p-5">
             <div className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-4">Missing — guided learning path</div>
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {((r.missing_skills as Array<{ name: string; priority: string; why: string; roadmap?: string; course?: string; practice?: string; weeks_to_job_ready?: number; steps?: string[]; youtube_videos?: Array<{ title: string; url: string }> }>) || []).map((m, idx) => {
                 const priorityColor = m.priority === "high" ? "badge-red" : m.priority === "medium" ? "badge-gold" : "text-muted-foreground text-xs";
                 const videos = (m.youtube_videos ?? []).map((v) => ({ title: v.title, url: canonicalYouTubeWatch(v.url) })).filter((v) => v.url).slice(0, 2);
