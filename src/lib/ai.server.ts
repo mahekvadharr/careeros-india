@@ -21,7 +21,7 @@ export async function callGemini(opts: {
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
 
   const body: Record<string, unknown> = {
-    model: opts.model ?? "gemini-2.5-flash",
+    model: opts.model ?? "gemini-2.0-flash",
     messages: opts.messages,
   };
   if (opts.tools) body.tools = opts.tools;
