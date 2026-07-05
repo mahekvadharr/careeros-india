@@ -47,7 +47,7 @@ const RESUME_TOOL = {
 // Gemini's native API (not the OpenAI-compat shim) — supports PDF input
 // directly via inline_data, which the OpenAI-compat endpoint does not.
 const GEMINI_NATIVE_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 export const analyzeResume = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -111,7 +111,7 @@ export const analyzeResume = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const t = await res.text().catch(() => "");
-      if (res.status === 429) throw new Error("Rate limit reached — try again in a moment.");
+      if (res.status === 429 || res.status === 503) throw new Error("AI is temporarily busy — please try again in 30 seconds.");
       if (res.status === 402) throw new Error("AI credits exhausted. Check your Google AI Studio billing.");
       throw new Error(`AI gateway error (${res.status}): ${t.slice(0, 240)}`);
     }
