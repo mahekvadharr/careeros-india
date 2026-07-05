@@ -19,6 +19,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated.roadmap'
 import { Route as AuthenticatedResumeRouteImport } from './routes/_authenticated.resume'
 import { Route as AuthenticatedReadinessRouteImport } from './routes/_authenticated.readiness'
+import { Route as AuthenticatedFeedbackRouteImport } from './routes/_authenticated.feedback'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedPricingRouteImport } from './routes/_authenticated.pricing'
 import { Route as AuthenticatedMentorRouteImport } from './routes/_authenticated.mentor'
@@ -73,6 +74,11 @@ const AuthenticatedReadinessRoute = AuthenticatedReadinessRouteImport.update({
   path: '/readiness',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedFeedbackRoute = AuthenticatedFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/mentor': typeof AuthenticatedMentorRoute
   '/pricing': typeof AuthenticatedPricingRoute
+  '/feedback': typeof AuthenticatedFeedbackRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/resume': typeof AuthenticatedResumeRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/mentor': typeof AuthenticatedMentorRoute
   '/pricing': typeof AuthenticatedPricingRoute
+  '/feedback': typeof AuthenticatedFeedbackRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/readiness': typeof AuthenticatedReadinessRoute
   '/resume': typeof AuthenticatedResumeRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/mentor': typeof AuthenticatedMentorRoute
   '/_authenticated/pricing': typeof AuthenticatedPricingRoute
+  '/_authenticated/feedback': typeof AuthenticatedFeedbackRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/readiness': typeof AuthenticatedReadinessRoute
   '/_authenticated/resume': typeof AuthenticatedResumeRoute
@@ -269,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReadinessRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/feedback': {
+      id: '/_authenticated/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof AuthenticatedFeedbackRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -304,6 +320,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedMentorRoute: typeof AuthenticatedMentorRoute
   AuthenticatedPricingRoute: typeof AuthenticatedPricingRoute
+  AuthenticatedFeedbackRoute: typeof AuthenticatedFeedbackRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedReadinessRoute: typeof AuthenticatedReadinessRoute
   AuthenticatedResumeRoute: typeof AuthenticatedResumeRoute
@@ -317,6 +334,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedMentorRoute: AuthenticatedMentorRoute,
   AuthenticatedPricingRoute: AuthenticatedPricingRoute,
+  AuthenticatedFeedbackRoute: AuthenticatedFeedbackRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedReadinessRoute: AuthenticatedReadinessRoute,
   AuthenticatedResumeRoute: AuthenticatedResumeRoute,
