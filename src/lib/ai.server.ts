@@ -1,13 +1,14 @@
-// Server-only AI helper — calls Gemini with automatic model fallback.
-// Model chain tried in order when overloaded. All are free-tier eligible.
-// The OpenAI-compat endpoint (/v1beta/openai/) requires "models/" prefix.
+// Server-only AI helper.
+// gemini-2.0-flash and gemini-1.5-* were shut down June 1 2026.
+// Current live models on Google AI Studio free tier:
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
+// Try in order — if one is overloaded (429/503), move to the next.
+// No "models/" prefix needed for the OpenAI-compat endpoint.
 const MODEL_CHAIN = [
-  "models/gemini-2.0-flash",
-  "models/gemini-1.5-flash",
-  "models/gemini-1.5-flash-8b",
+  "gemini-2.5-flash-lite-preview-06-17", // fastest, free tier
+  "gemini-2.5-flash",                    // more capable fallback
 ];
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
@@ -58,13 +59,14 @@ export async function callGemini(opts: {
       return { text, toolArguments };
     }
 
-    // Only retry on overload/rate-limit — 404 means wrong model name so stop immediately
+    // Overloaded — try next model
     if (res.status === 429 || res.status === 503) continue;
 
+    // Hard errors — don't retry
     const t = await res.text().catch(() => "");
     if (res.status === 401) throw new Error("Invalid Gemini API key. Check GEMINI_API_KEY in Vercel settings.");
     if (res.status === 402) throw new Error("AI credits exhausted. Check your Google AI Studio billing.");
-    if (res.status === 404) throw new Error("Gemini model not found. This is a configuration issue — please contact support.");
+    if (res.status === 404) throw new Error(`Model not found: ${model}. This is a configuration issue.`);
     throw new Error(`AI error (${res.status}): ${t.slice(0, 200)}`);
   }
 
