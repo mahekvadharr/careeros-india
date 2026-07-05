@@ -97,10 +97,10 @@ STRICT LINK RULES (any violation = failure):
     // Resources come ONLY from the curated DB. We match by the task title/detail
     // against known skill keys; if no match, links are omitted (UI shows
     // "Resource currently unavailable").
-    const { lookupSkill } = await import("./resource-db.server");
+    const { lookupSkillFromText } = await import("./resource-db.server");
     const tasks = rawTasks.map((t, i) => {
       const haystack = `${t.title ?? ""} ${t.detail ?? ""}`;
-      const db = lookupSkill(haystack);
+      const db = lookupSkillFromText(haystack);
       const video = db?.videos?.[0];
       const res = (t.resources ?? {}) as Record<string, unknown>;
       return {
