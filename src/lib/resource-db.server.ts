@@ -675,3 +675,37 @@ export function videosForSkill(name: string | undefined | null): ResourceVideo[]
   }
   return out;
 }
+
+
+// ── Smarter lookup for free-text task strings ────────────────────────────────
+// Tries keys in order from most-specific (longest match) to least-specific,
+// so "postgresql" beats "sql" beats "c" when the text says "postgresql queries".
+
+export function lookupSkillFromText(text: string | undefined | null): SkillResources | null {
+  if (!text) return null;
+  const n = normalize(text);
+
+  // Build a list of all canonical keys + their aliases, sorted longest-first
+  // so more specific matches win over shorter accidental matches.
+  const candidates: Array<{ pattern: string; key: string }> = [];
+
+  for (const key of Object.keys(DB)) {
+    candidates.push({ pattern: key, key });
+  }
+  for (const [alias, key] of Object.entries(ALIASES)) {
+    candidates.push({ pattern: alias, key });
+  }
+
+  // Sort by pattern length descending — "postgresql" (10) before "sql" (3)
+  candidates.sort((a, b) => b.pattern.length - a.pattern.length);
+
+  // Require word-boundary-like match: pattern must appear as a whole word/phrase
+  for (const { pattern, key } of candidates) {
+    // Use a regex with word boundaries where possible
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`(?<![a-z])${escaped}(?![a-z])`, "i");
+    if (re.test(n) && DB[key]) return DB[key];
+  }
+
+  return null;
+}
