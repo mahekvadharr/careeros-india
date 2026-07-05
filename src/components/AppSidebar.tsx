@@ -1,5 +1,5 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { Home, Compass, Calendar, FileText, Briefcase, MessageCircle, Mic, Wrench, Target, Settings, LogOut, Gauge, Sparkles, ChevronRight, User } from "lucide-react";
+import { Home, Compass, Calendar, FileText, Briefcase, MessageCircle, Mic, Wrench, Target, Settings, LogOut, Gauge, Sparkles, ChevronRight, User, Send } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter, SidebarHeader, useSidebar } from "@/components/ui/sidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -135,6 +135,14 @@ export function AppSidebar() {
                   <span className="text-[9px] font-bold text-primary">{initials}</span>
                 </div>
                 {!collapsed && <span className="flex-1 font-medium">{profile?.full_name?.split(" ")[0] ?? "Profile"}</span>}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link to="/feedback" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                <Send className="h-4 w-4 shrink-0" />
+                {!collapsed && <span>Send feedback</span>}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
