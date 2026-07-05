@@ -1,29 +1,19 @@
 // Server-only AI helper.
-// gemini-2.0-flash and gemini-1.5-* were shut down June 1 2026.
-// Current live models on Google AI Studio free tier:
+// Model names as of July 2026 — gemini-2.0-flash and gemini-1.5-* are shut down.
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
-// Try in order — if one is overloaded (429/503), move to the next.
-// No "models/" prefix needed for the OpenAI-compat endpoint.
 const MODEL_CHAIN = [
-  "gemini-2.5-flash-lite-preview-06-17", // fastest, free tier
-  "gemini-2.5-flash",                    // more capable fallback
+  "gemini-2.5-flash-lite", // fastest, most cost-efficient
+  "gemini-2.5-flash",      // more capable fallback
 ];
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
-async function callModel(
-  model: string,
-  apiKey: string,
-  body: Record<string, unknown>,
-): Promise<Response> {
+async function callModel(model: string, apiKey: string, body: Record<string, unknown>): Promise<Response> {
   return fetch(GEMINI_BASE_URL, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({ ...body, model }),
   });
 }
@@ -59,14 +49,11 @@ export async function callGemini(opts: {
       return { text, toolArguments };
     }
 
-    // Overloaded — try next model
-    if (res.status === 429 || res.status === 503) continue;
+    if (res.status === 429 || res.status === 503) continue; // overloaded, try next
 
-    // Hard errors — don't retry
     const t = await res.text().catch(() => "");
     if (res.status === 401) throw new Error("Invalid Gemini API key. Check GEMINI_API_KEY in Vercel settings.");
     if (res.status === 402) throw new Error("AI credits exhausted. Check your Google AI Studio billing.");
-    if (res.status === 404) throw new Error(`Model not found: ${model}. This is a configuration issue.`);
     throw new Error(`AI error (${res.status}): ${t.slice(0, 200)}`);
   }
 
