@@ -144,11 +144,11 @@ For learning_plan items, follow the same link rules.`;
     // Replace AI-emitted links entirely with curated, hand-verified entries.
     // If a skill is not in the database, NO link is shown (UI falls back to
     // "Resource currently unavailable").
-    const { lookupSkill } = await import("./resource-db.server");
+    const { lookupSkillFromText } = await import("./resource-db.server");
 
     const missing = Array.isArray(r.missing_skills) ? (r.missing_skills as Array<Record<string, unknown>>) : [];
     const cleanedMissing = missing.map((m) => {
-      const db = lookupSkill(String(m.name ?? ""));
+      const db = lookupSkillFromText(String(m.name ?? ""));
       return {
         ...m,
         roadmap: db?.roadmap ?? "",
@@ -160,7 +160,7 @@ For learning_plan items, follow the same link rules.`;
 
     const plan = Array.isArray(r.learning_plan) ? (r.learning_plan as Array<Record<string, unknown>>) : [];
     const cleanedPlan = plan.map((p) => {
-      const db = lookupSkill(String(p.skill ?? ""));
+      const db = lookupSkillFromText(String(p.skill ?? ""));
       return {
         ...p,
         roadmap: db?.roadmap ?? "",
