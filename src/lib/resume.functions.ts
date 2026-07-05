@@ -47,7 +47,7 @@ const RESUME_TOOL = {
 // Gemini's native API (not the OpenAI-compat shim) — supports PDF input
 // directly via inline_data, which the OpenAI-compat endpoint does not.
 const GEMINI_NATIVE_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 export const analyzeResume = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
