@@ -1,14 +1,13 @@
 // Server-only AI helper — calls Gemini with automatic model fallback.
-// Model chain: gemini-2.0-flash → gemini-1.5-flash → gemini-1.5-flash-8b
-// If one model is overloaded (503) or rate-limited (429), the next is tried.
+// Model chain tried in order when overloaded. All are free-tier eligible.
+// The OpenAI-compat endpoint (/v1beta/openai/) requires "models/" prefix.
 
 const GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
-// Models tried in order. All are free-tier eligible on Google AI Studio.
 const MODEL_CHAIN = [
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-8b",
+  "models/gemini-2.0-flash",
+  "models/gemini-1.5-flash",
+  "models/gemini-1.5-flash-8b",
 ];
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
@@ -41,10 +40,8 @@ export async function callGemini(opts: {
   if (opts.tools) body.tools = opts.tools;
   if (opts.tool_choice) body.tool_choice = opts.tool_choice;
 
-  // Use specified model if given, otherwise try the fallback chain
   const modelsToTry = opts.model ? [opts.model] : MODEL_CHAIN;
 
-  let lastError = "";
   for (const model of modelsToTry) {
     const res = await callModel(model, apiKey, body);
 
@@ -61,19 +58,15 @@ export async function callGemini(opts: {
       return { text, toolArguments };
     }
 
-    // 429 or 503 → try next model
-    if (res.status === 429 || res.status === 503) {
-      lastError = `${model} busy`;
-      continue;
-    }
+    // Only retry on overload/rate-limit — 404 means wrong model name so stop immediately
+    if (res.status === 429 || res.status === 503) continue;
 
-    // Any other error → fail immediately, no point retrying with another model
     const t = await res.text().catch(() => "");
-    if (res.status === 401) throw new Error("Invalid Gemini API key. Check GEMINI_API_KEY in Vercel.");
+    if (res.status === 401) throw new Error("Invalid Gemini API key. Check GEMINI_API_KEY in Vercel settings.");
     if (res.status === 402) throw new Error("AI credits exhausted. Check your Google AI Studio billing.");
+    if (res.status === 404) throw new Error("Gemini model not found. This is a configuration issue — please contact support.");
     throw new Error(`AI error (${res.status}): ${t.slice(0, 200)}`);
   }
 
-  // All models failed
-  throw new Error("AI is temporarily unavailable — all models are busy. Please try again in a minute.");
+  throw new Error("AI is temporarily busy. Please try again in a minute.");
 }
