@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <defs>
+    <linearGradient id="g-back" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#6B4700"/>
+      <stop offset="100%" stop-color="#4A3000"/>
+    </linearGradient>
+    <linearGradient id="g-mid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#A07830"/>
+      <stop offset="60%"  stop-color="#C6A15B"/>
+      <stop offset="100%" stop-color="#8B6010"/>
+    </linearGradient>
+    <linearGradient id="g-front" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%"   stop-color="#FFE599"/>
+      <stop offset="30%"  stop-color="#D4AF70"/>
+      <stop offset="70%"  stop-color="#C6A15B"/>
+      <stop offset="100%" stop-color="#9A7830"/>
+    </linearGradient>
+    <linearGradient id="g-shine" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%"   stop-color="#FFF8E0" stop-opacity="0.85"/>
+      <stop offset="50%"  stop-color="#FFE599" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#C6A15B" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="g-shadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#8B6010" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#8B6010" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Ground shadow -->
+  <ellipse cx="252" cy="452" rx="148" ry="20" fill="url(#g-shadow)"/>
+
+  <!-- Back layer — darkest, offset furthest -->
+  <path d="M 318 72 A 178 178 0 1 0 318 428 L 318 380 A 130 130 0 1 1 318 120 Z"
+        fill="url(#g-back)" transform="translate(18,18)"/>
+
+  <!-- Mid layer — medium gold, offset less -->
+  <path d="M 318 72 A 178 178 0 1 0 318 428 L 318 380 A 130 130 0 1 1 318 120 Z"
+        fill="url(#g-mid)" transform="translate(9,9)"/>
+
+  <!-- Front layer — brightest gold, no offset -->
+  <path d="M 318 72 A 178 178 0 1 0 318 428 L 318 380 A 130 130 0 1 1 318 120 Z"
+        fill="url(#g-front)"/>
+
+  <!-- Shine highlight on upper-left curve -->
+  <path d="M 318 72 A 178 178 0 0 0 80 250 A 178 178 0 0 0 318 428
+           L 318 380 A 130 130 0 0 1 128 250 A 130 130 0 0 1 318 120 Z"
+        fill="url(#g-shine)"/>
+
+  <!-- Inner edge highlight — thin bright rim on top -->
+  <path d="M 318 120 A 130 130 0 0 0 128 250 A 130 130 0 0 0 318 380"
+        fill="none" stroke="#FFF8E0" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+</svg>
